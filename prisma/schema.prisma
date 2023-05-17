@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   Int           @id @default(autoincrement())
+  createdAt            DateTime      @default(now())
+  email                String        @unique
+  auth0sub             String        @unique
+  fullName             String
+  technicalProficiency String?
+  role                 String?
+  stripeCustomerId     String?       @unique
+  stripeSub            Subscription?
+  organizationId       Int?
+  organization         Organization? @relation("OrganizationMembers", fields: [organizationId], references: [id])
+  outputs              Output[]
+  adminOf              Organization? @relation("UserAdminOfOrganization")
+}
+
+model Subscription {
+  id                   Int    @id @default(autoincrement())
+  customerId           Int    @unique
+  customer             User   @relation(fields: [customerId], references: [id])
+  stripeSubId          String
+  stripeSubPriceId     String
+  stripeSubProductName String
+  stripeSubStatus      String
+  stripeSubQuantity    Int
+}
+
+model Organization {
+  id                   Int       @id @default(autoincrement())
+  createdAt            DateTime  @default(now())
+  name                 String
+  about                String
+  trainingResourcesUrl String?
+  domainIndustry       String
+  domainLiteracy       String
+  roles                Json
+  invites              Invite[]
+  outputs              Output[]
+  members              User[]    @relation("OrganizationMembers")
+  adminId              Int       @unique
+  admin                User      @relation("UserAdminOfOrganization", fields: [adminId], references: [id])
+  projects             Project[]
+}
+
+model Project {
+  id             Int          @id @default(autoincrement())
+  createdAt      DateTime     @default(now())
+  label          String
+  description    String
+  outputs        Output[]
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model Invite {
+  id             Int          @id @default(autoincrement())
+  email          String
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+}
+
+model Output {
+  id             Int          @id @default(autoincrement())
+  createdAt      DateTime     @default(now())
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id])
+  organizationId Int
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  projectId      Int
+  project        Project      @relation(fields: [projectId], references: [id])
+  body           String
+  markedAs       String
+  voice          String
+  userBookmarked Boolean      @default(false)
+}
