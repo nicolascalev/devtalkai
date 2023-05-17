@@ -13,3 +13,9 @@ export const inviteSchema = Joi.object({
   email: Joi.string().email({ tlds: false }),
   organizationId: Joi.number().integer(),
 });
+
+export const profileSchema = Joi.object({
+  fullName: Joi.string(),
+  technicalProficiency: Joi.string().allow("").allow(null),
+  role: Joi.string().allow("").allow(null),
+});

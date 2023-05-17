@@ -69,6 +69,8 @@ model Invite {
   email          String
   organizationId Int
   organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@index([organizationId, email])
 }
 
 model Output {

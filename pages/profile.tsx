@@ -11,18 +11,23 @@ import {
   Box,
   ActionIcon,
   Badge,
+  Menu,
 } from "@mantine/core";
-import { useHover } from "@mantine/hooks";
+import { useDisclosure, useHover } from "@mantine/hooks";
 import {
   IconDots,
+  IconEdit,
   IconExternalLink,
   IconInfoCircle,
+  IconLogout,
 } from "@tabler/icons-react";
 import React, { ReactNode } from "react";
 import { useStoreState } from "../store";
+import AppUpdateProfile from "../components/AppUpdateProfile";
 
 function ProfilePage() {
   const user = useStoreState((state) => state.user);
+  const [opened, { open, close }] = useDisclosure(false);
 
   if (!user) return null;
 
@@ -33,7 +38,7 @@ function ProfilePage() {
       </Title>
       <SimpleGrid
         cols={1}
-        breakpoints={[{ minWidth: "xs", cols: 2, spacing: "xl" }]}
+        breakpoints={[{ minWidth: "sm", cols: 2, spacing: "xl" }]}
       >
         <div>
           <Card withBorder>
@@ -44,9 +49,28 @@ function ProfilePage() {
                 </Text>
                 <Text c="dimmed">{user.email}</Text>
               </div>
-              <ActionIcon>
-                <IconDots size={16} />
-              </ActionIcon>
+
+              <Menu shadow="md" width={200}>
+                <Menu.Target>
+                  <ActionIcon>
+                    <IconDots size={16} />
+                  </ActionIcon>
+                </Menu.Target>
+
+                <Menu.Dropdown>
+                  <Menu.Item
+                    icon={<IconEdit size={14} />}
+                    onClick={() => open()}
+                  >
+                    Edit profile
+                  </Menu.Item>
+                  <Menu.Item icon={<IconLogout size={14} />} color="red">
+                    Logout
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+
+              <AppUpdateProfile opened={opened} close={close} user={user} />
             </Group>
             <Card.Section>
               <Divider my="md" />
