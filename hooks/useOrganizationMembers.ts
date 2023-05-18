@@ -4,7 +4,7 @@ import { PaginationResult } from "prisma-paginate";
 import { User } from "@prisma/client";
 
 export default function useOrganizationMembers(organizationId?: number) {
-  const { data, isLoading, error } = useSWR(
+  const { data, isLoading, error, mutate } = useSWR(
     organizationId ? `/api/organization/${organizationId}/members` : null,
     basicFetcher
   );
@@ -15,5 +15,6 @@ export default function useOrganizationMembers(organizationId?: number) {
     membersResponse: response,
     membersLoading: isLoading,
     membersLoadingError: error,
+    membersRevalidate: mutate,
   };
 }

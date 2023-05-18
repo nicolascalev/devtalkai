@@ -10,7 +10,7 @@ const afterCallback = async (
 ) => {
   const auth0User: any = session.user;
   try {
-    let user = await User.findByAuth0Sub(auth0User.sub);
+    let user: any = await User.findByAuth0Sub(auth0User.sub);
     if (!user) {
       const newUser: Prisma.UserCreateInput = {
         fullName: auth0User.name,

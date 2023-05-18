@@ -96,5 +96,52 @@ export default withApiAuthRequired(async function organizationMembersHandler(
     }
   }
 
+  if (req.method === "DELETE") {
+    const session: any = await getSession(req, res);
+    const user: UserWithNestedProperties = session.user;
+
+    // if user is not admin and it is not the same as the one in the url then fail
+    if (user.adminOf?.id !== Number(req.query.organizationId)) {
+      return res.status(403).send("Forbidden");
+    }
+
+    // if there is no email in body then fail
+    if (!req.body.email) {
+      return res.status(400).send("Parameter 'email' was not provided");
+    }
+
+    // make sure the organization admin is not removed from organization
+    if (req.body.email === user.email) {
+      return res
+        .status(400)
+        .send(
+          "That email belongs to the admin and they can not be removed from organization"
+        );
+    }
+
+    try {
+      await prisma.invite.deleteMany({
+        where: {
+          organizationId: Number(req.query.organizationId),
+          email: req.body.email,
+        },
+      });
+      await prisma.organization.update({
+        where: {
+          id: Number(req.query.organizationId),
+        },
+        data: {
+          members: {
+            disconnect: { email: req.body.email },
+          },
+        },
+      });
+
+      return res.status(200).send("Member removed from organization");
+    } catch (err) {
+      return res.status(500).json(err);
+    }
+  }
+
   return res.status(501).send("Not implemented");
 });

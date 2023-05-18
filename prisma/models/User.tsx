@@ -20,6 +20,8 @@ const User = {
       },
       include: {
         stripeSub: true,
+        organization: true,
+        adminOf: true,
       }
     });
     return user;

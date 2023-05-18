@@ -22,8 +22,10 @@ import useOrganizationInvites from "../hooks/useOrganizationInvites";
 
 function AppAllowedEmailsModal({
   count,
+  onRemoveMember,
 }: {
   count: number | null | undefined;
+  onRemoveMember: () => void,
 }) {
   const user = useStoreState((state) => state.user);
   const [opened, { open, close }] = useDisclosure(false);
@@ -41,6 +43,7 @@ function AppAllowedEmailsModal({
     organizationInvitesData,
     organizationInvitesLoading,
     organizationInvitesError,
+    organizationInvitesRevalidate,
   } = useOrganizationInvites(debouncedEmail, page);
 
   useEffect(() => {
@@ -68,6 +71,34 @@ function AppAllowedEmailsModal({
       });
     }
   }, [organizationInvitesData]);
+
+  const [removeOrganizationMemberLoading, setRemoveOrganizationMemberLoading] =
+    useState(false);
+
+  async function removeOrganizationMember(email: string) {
+    setRemoveOrganizationMemberLoading(true);
+    try {
+      await api.delete(`/api/organization/${user!.adminOf!.id}/members`, {
+        data: {
+          email,
+        },
+      });
+      showNotification({
+        message: "Member removed from organization",
+      });
+      setInvites([]);
+      organizationInvitesRevalidate();
+      onRemoveMember();
+    } catch (err) {
+      showNotification({
+        color: "red",
+        title: "Please try again later",
+        message: "This member could not be removed",
+      });
+    } finally {
+      setRemoveOrganizationMemberLoading(false);
+    }
+  }
 
   const [loadingAddEmail, setLoadingAddEmail] = useState(false);
   if (!user?.adminOf) return null;
@@ -162,7 +193,11 @@ function AppAllowedEmailsModal({
                   </Text>
                 )}
               </div>
-              <ActionIcon disabled={inv.email === user.email}>
+              <ActionIcon
+                disabled={inv.email === user.email}
+                onClick={() => removeOrganizationMember(inv.email)}
+                loading={removeOrganizationMemberLoading}
+              >
                 <IconUserX size={16} />
               </ActionIcon>
             </Group>

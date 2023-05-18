@@ -28,8 +28,12 @@ function AdminPage() {
   const isDark = theme.colorScheme === "dark";
   const { count, countRevalidate } = useOrganizationCount(user?.adminOf?.id);
 
-  const { membersResponse, membersLoading, membersLoadingError } =
-    useOrganizationMembers(user?.adminOf?.id);
+  const {
+    membersResponse,
+    membersLoading,
+    membersLoadingError,
+    membersRevalidate,
+  } = useOrganizationMembers(user?.adminOf?.id);
   const [page, setPage] = useState(1);
 
   const router = useRouter();
@@ -62,7 +66,10 @@ function AdminPage() {
             <Group position="apart" spacing="xs">
               <Text>Your subscription is based on the allowed-emails list</Text>
               <Group position="right" style={{ flexGrow: 1 }}>
-                <AppAllowedEmailsModal count={count?.inviteCount} />
+                <AppAllowedEmailsModal
+                  count={count?.inviteCount}
+                  onRemoveMember={() => membersRevalidate()}
+                />
               </Group>
             </Group>
           </Alert>
