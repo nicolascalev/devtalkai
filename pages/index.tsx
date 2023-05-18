@@ -24,7 +24,8 @@ export const getServerSideProps = withPageAuthRequired();
 
 export default function IndexPage() {
   const [page, setPage] = useState(1);
-  const { outputsResponse, outputsLoading, outputsError } = useOutputs(page);
+  const { outputsResponse, outputsLoading, outputsError, outputsRevalidate } =
+    useOutputs(page);
 
   return (
     <Container size="md" p={0}>
@@ -51,7 +52,7 @@ export default function IndexPage() {
       >
         {outputsResponse?.result.map((output) => (
           <div key={output.id}>
-            <AppOutputCard output={output} />
+            <AppOutputCard output={output} onUpdate={() => outputsRevalidate()} />
           </div>
         ))}
         {outputsResponse?.result.length === 0 && (
@@ -73,9 +74,7 @@ export default function IndexPage() {
             </Center>
           </Card>
         )}
-        {outputsLoading && (
-          <AppOutputsLoader />
-        )}
+        {outputsLoading && <AppOutputsLoader />}
       </SimpleGrid>
       <Group position="apart" align="center" mt="sm" mb="xl">
         <Text c="dimmed" size="sm">
@@ -104,7 +103,7 @@ function AppOutputsLoader() {
         <AppOutputSkeleton />
       </div>
     </>
-  )
+  );
 }
 
 function AppOutputSkeleton() {
@@ -116,5 +115,5 @@ function AppOutputSkeleton() {
       <Skeleton height={8} width="90%" radius="xl" mb="md" />
       <Skeleton height={8} width="20%" radius="md" />
     </>
-  )
+  );
 }

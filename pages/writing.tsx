@@ -119,7 +119,7 @@ function WritingPage() {
               placeholder="Send signals to my house to water my plants..."
             />
             <div>
-              <ActionIcon color="brand" variant="filled">
+              <ActionIcon color="primary" variant="filled">
                 <IconSend size={16} />
               </ActionIcon>
             </div>

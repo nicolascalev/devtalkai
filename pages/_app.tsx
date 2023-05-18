@@ -92,7 +92,7 @@ export default function App(props: AppProps) {
                     "#6eb602",
                   ],
                 },
-                primaryColor: "brand",
+                primaryColor: "lime",
                 fontFamily:
                   "Inter, -apple-system, BlinkMacSystemFont, sans-serif !important",
               }}

@@ -3,9 +3,9 @@ import { fetcherWithConfig } from "./api.client";
 import { PaginationResult } from "prisma-paginate";
 import { OutputWithProject } from "../types/types";
 
-export default function useOutputs(page: number) {
-  const { data, error, isLoading } = useSWR(
-    page ? ["/api/output", { params: { page } }] : null,
+export default function useOutputs(page: number, bookmarked?:boolean) {
+  const { data, error, isLoading, mutate } = useSWR(
+    page ? ["/api/output", { params: { page, bookmarked } }] : null,
     fetcherWithConfig
   );
 
@@ -15,5 +15,6 @@ export default function useOutputs(page: number) {
     outputsResponse: queryResponse,
     outputsLoading: isLoading,
     outputsError: error,
+    outputsRevalidate: mutate,
   };
 }

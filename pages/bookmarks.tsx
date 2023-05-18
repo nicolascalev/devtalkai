@@ -7,21 +7,28 @@ import {
   SimpleGrid,
   Card,
   ActionIcon,
+  Center,
+  Box,
+  ThemeIcon,
+  Skeleton,
+  Pagination,
 } from "@mantine/core";
-import { IconBookmark } from "@tabler/icons-react";
+import { IconBookmark, IconNote } from "@tabler/icons-react";
 import Link from "next/link";
+import useOutputs from "../hooks/useOutputs";
+import { useState } from "react";
+import AppOutputCard from "../components/AppOutputCard";
 
 export default function BookmarksPage() {
+  const [page, setPage] = useState(1);
+  const { outputsResponse, outputsLoading, outputsError, outputsRevalidate } =
+    useOutputs(page, true);
+
   return (
     <Container size="md" p={0}>
-      <Group noWrap align="center" position="apart">
-        <Title order={1} my="xl">
-          Bookmarks
-        </Title>
-        <Link href="/writing" passHref>
-          <Button>Create</Button>
-        </Link>
-      </Group>
+      <Title order={1} my="xl">
+        Bookmarks
+      </Title>
       <Text size="lg" fw={500}>
         Recent content writing
       </Text>
@@ -35,45 +42,73 @@ export default function BookmarksPage() {
           { minWidth: "sm", cols: 3 },
         ]}
       >
-        <div>
-          <AppSnippetCard />
-        </div>
-        <div>
-          <AppSnippetCard />
-        </div>
-        <div>
-          <AppSnippetCard />
-        </div>
+        {outputsResponse?.result.map((output) => (
+          <div key={output.id}>
+            <AppOutputCard
+              output={output}
+              onUpdate={() => outputsRevalidate()}
+            />
+          </div>
+        ))}
+        {outputsResponse?.result.length === 0 && (
+          <Card withBorder mih="200px">
+            <Center h="100%">
+              <Box maw="90%">
+                <Group position="center" mb="sm">
+                  <ThemeIcon size="xl" color="gray" variant="light">
+                    <IconNote />
+                  </ThemeIcon>
+                </Group>
+                <Text ta="center" fw={500}>
+                  No bookmarks
+                </Text>
+                <Text ta="center" size="sm" c="dimmed">
+                  When you save outputs, they will be shown here
+                </Text>
+              </Box>
+            </Center>
+          </Card>
+        )}
+        {outputsLoading && <AppOutputsLoader />}
       </SimpleGrid>
+      <Group position="apart" align="center" mt="sm" mb="xl">
+        <Text c="dimmed" size="sm">
+          Total results: {outputsResponse?.count}
+        </Text>
+        <Pagination
+          value={page}
+          onChange={setPage}
+          total={outputsResponse?.totalPages}
+        />
+      </Group>
     </Container>
   );
 }
 
-function AppSnippetCard() {
+function AppOutputsLoader() {
   return (
-    <Card withBorder>
-      <Group noWrap align="center" position="apart">
-        <Text c="dimmed">Project name</Text>
-        <Group noWrap align="center">
-          <ActionIcon variant="default" size="sm">
-            <IconBookmark size={14} />
-          </ActionIcon>
-        </Group>
-      </Group>
-      <Text my="sm">
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Atque, hic.
-        Perferendis ducimus rem amet explicabo tenetur odio laudantium natus quo
-        porro dolores commodi nesciunt soluta enim magni, voluptatibus quas
-        perspiciatis?
-      </Text>
-      <Group noWrap align="center" position="apart">
-        <Text c="dimmed" size="sm">
-          Issue
-        </Text>
-        <Text c="dimmed" size="sm">
-          13d ago
-        </Text>
-      </Group>
-    </Card>
+    <>
+      <div>
+        <AppOutputSkeleton />
+      </div>
+      <div>
+        <AppOutputSkeleton />
+      </div>
+      <div>
+        <AppOutputSkeleton />
+      </div>
+    </>
+  );
+}
+
+function AppOutputSkeleton() {
+  return (
+    <>
+      <Skeleton height={8} width="20%" radius="xl" mb="md" />
+      <Skeleton height={8} width="100%" radius="xl" mb="md" />
+      <Skeleton height={8} width="100%" radius="xl" mb="md" />
+      <Skeleton height={8} width="90%" radius="xl" mb="md" />
+      <Skeleton height={8} width="20%" radius="md" />
+    </>
   );
 }

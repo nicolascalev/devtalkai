@@ -1,29 +1,24 @@
 import {
   Box,
-  Button,
   Container,
   Group,
-  MultiSelect,
   Tabs,
-  TextInput,
-  Textarea,
   Title,
   Text,
   Alert,
   SimpleGrid,
-  Card,
-  ActionIcon,
   useMantineTheme,
+  Pagination,
 } from "@mantine/core";
 import React, { useState } from "react";
-import AppDomainLiteracySelect from "../components/AppDomainLiteracySelect";
-import { IconDots } from "@tabler/icons-react";
 import AppAllowedEmailsModal from "../components/AppAllowedEmailsModal";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useStoreState } from "../store";
 import { useRouter } from "next/router";
 import useOrganizationCount from "../hooks/useOrganizationCount";
 import AppUpdateOrganizationForm from "../components/AppUpdateOrganizationForm";
+import AppUserCard, { AppUserCardSkeleton } from "../components/AppUserCard";
+import useOrganizationMembers from "../hooks/useOrganizationMembers";
 
 export const getServerSideProps = withPageAuthRequired();
 
@@ -31,9 +26,11 @@ function AdminPage() {
   const user = useStoreState((state) => state.user);
   const theme = useMantineTheme();
   const isDark = theme.colorScheme === "dark";
-  const [data, setData] = useState<{ value: string; label: string }[]>([]);
-
   const { count, countRevalidate } = useOrganizationCount(user?.adminOf?.id);
+
+  const { membersResponse, membersLoading, membersLoadingError } =
+    useOrganizationMembers(user?.adminOf?.id);
+  const [page, setPage] = useState(1);
 
   const router = useRouter();
   if (!user) return null;
@@ -61,7 +58,7 @@ function AdminPage() {
 
         <Tabs.Panel value="Members" pt="xs">
           <Alert mb="md" color={isDark ? "gray" : "dark"} variant="outline">
-            <Text fw={500}>Allowed emails: {count?.inviteCount}</Text>
+            <Text fw={500}>Allowed emails in list: {count?.inviteCount}</Text>
             <Group position="apart" spacing="xs">
               <Text>Your subscription is based on the allowed-emails list</Text>
               <Group position="right" style={{ flexGrow: 1 }}>
@@ -82,35 +79,24 @@ function AdminPage() {
               { minWidth: "sm", cols: 3 },
             ]}
           >
-            <div>
-              <Card withBorder style={{ overflow: "visible" }}>
-                <Text fw={500}>Jafeth Guillen</Text>
-                <Text c="dimmed" size="sm">
-                  jafeth@slack.com
-                </Text>
-                <Group align="center" position="apart" mt="xs">
-                  <Text c="dimmed" size="sm">
-                    Role
-                  </Text>
-                  <Text size="sm">Developer</Text>
-                </Group>
-              </Card>
-            </div>
-            <div>
-              <Card withBorder style={{ overflow: "visible" }}>
-                <Text fw={500}>Nicolas Guillen</Text>
-                <Text c="dimmed" size="sm">
-                  nicolas@slack.com
-                </Text>
-                <Group align="center" position="apart" mt="xs">
-                  <Text c="dimmed" size="sm">
-                    Role
-                  </Text>
-                  <Text size="sm">-</Text>
-                </Group>
-              </Card>
-            </div>
+            {membersLoading && <AppOrganizationMembersSkeleton />}
+            {membersResponse?.result.map((user) => (
+              <div key={user.id}>
+                <AppUserCard user={user} />
+              </div>
+            ))}
           </SimpleGrid>
+
+          <Group position="apart" align="center" mt="sm" mb="xl">
+            <Text c="dimmed" size="sm">
+              Total results: {membersResponse?.count}
+            </Text>
+            <Pagination
+              value={page}
+              onChange={setPage}
+              total={membersResponse?.totalPages}
+            />
+          </Group>
         </Tabs.Panel>
       </Tabs>
     </Container>
@@ -118,3 +104,19 @@ function AdminPage() {
 }
 
 export default AdminPage;
+
+function AppOrganizationMembersSkeleton() {
+  return (
+    <>
+      <div>
+        <AppUserCardSkeleton />
+      </div>
+      <div>
+        <AppUserCardSkeleton />
+      </div>
+      <div>
+        <AppUserCardSkeleton />
+      </div>
+    </>
+  );
+}

@@ -13,6 +13,7 @@ import {
   ActionIcon,
   Modal,
   NumberInput,
+  useMantineTheme,
 } from "@mantine/core";
 import { IconEdit } from "@tabler/icons-react";
 import useMatchesMediaQuery from "../hooks/useMatchesMediaQuery";
@@ -33,6 +34,8 @@ declare global {
 }
 
 function SubscriptionPage() {
+  const theme = useMantineTheme();
+  const isDark = theme.colorScheme === "dark";
   const user = useStoreState((state) => state.user);
   const { ltExtraSmall } = useMatchesMediaQuery();
   const { userRevalidate } = useProfile();
@@ -124,12 +127,23 @@ function SubscriptionPage() {
               )}
             </Alert>
           </Container>
-          <stripe-pricing-table
-            pricing-table-id="prctbl_1N7TYABQSgJN6JQglw4mYIe1"
-            publishable-key="pk_test_51N7PnyBQSgJN6JQgSYvB88KSyjpiOnfjju3PjWCp6gYw1YM1Z87vvdN1AR2YVAg3Qouyoej1BhYAfEF4c7JEUx4D00WBndmp8O"
-            client-reference-id={user.id}
-            customer-email={user.email}
-          ></stripe-pricing-table>
+          {isDark ? (
+            <stripe-pricing-table
+              pricing-table-id="prctbl_1N7TYABQSgJN6JQglw4mYIe1"
+              publishable-key="pk_test_51N7PnyBQSgJN6JQgSYvB88KSyjpiOnfjju3PjWCp6gYw1YM1Z87vvdN1AR2YVAg3Qouyoej1BhYAfEF4c7JEUx4D00WBndmp8O"
+              client-reference-id={user.id}
+              customer-email={user.email}
+            ></stripe-pricing-table>
+            
+            ) : (
+            <stripe-pricing-table
+              pricing-table-id="prctbl_1N9Au6BQSgJN6JQg7IRaTUx9"
+              publishable-key="pk_test_51N7PnyBQSgJN6JQgSYvB88KSyjpiOnfjju3PjWCp6gYw1YM1Z87vvdN1AR2YVAg3Qouyoej1BhYAfEF4c7JEUx4D00WBndmp8O"
+              client-reference-id={user.id}
+              customer-email={user.email}
+            ></stripe-pricing-table>
+
+          )}
         </div>
       )}
     </div>

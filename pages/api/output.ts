@@ -20,6 +20,9 @@ export default withApiAuthRequired(async function outputHandler(
         {
           where: {
             userId: user!.id,
+            userBookmarked: req.query.bookmarked
+              ? { equals: JSON.parse(req.query.bookmarked as string) }
+              : undefined,
           },
           include: {
             project: true,

@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { UserWithNestedProperties } from "../../types/types";
 import prisma from "../../prisma/client";
-import { Prisma } from "@prisma/client";
 import { profileSchema } from "../../types/joiSchemas";
 
 export default withApiAuthRequired(async function profileHandler(

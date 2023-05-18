@@ -20,14 +20,14 @@ export default withApiAuthRequired(async function organizationMembersHandler(
 
     const paginate = paginator(prisma);
     try {
-      const queryResult = await paginate.invite.paginate(
+      const queryResult = await paginate.user.paginate(
         {
           where: {
             organizationId: Number(req.query.organizationId),
-            email: { contains: (req.query.email as string) || undefined },
+            // email: { contains: (req.query.email as string) || undefined },
           },
         },
-        { limit: 20, page: Number(req.query.page || 1) }
+        { limit: 18, page: Number(req.query.page || 1) }
       );
       return res.status(200).json(queryResult);
     } catch (err) {

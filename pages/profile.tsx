@@ -64,7 +64,12 @@ function ProfilePage() {
                   >
                     Edit profile
                   </Menu.Item>
-                  <Menu.Item icon={<IconLogout size={14} />} color="red">
+                  <Menu.Item
+                    icon={<IconLogout size={14} />}
+                    color="red"
+                    component="a"
+                    href="/api/auth/logout"
+                  >
                     Logout
                   </Menu.Item>
                 </Menu.Dropdown>
