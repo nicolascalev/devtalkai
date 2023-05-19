@@ -14,11 +14,14 @@ import useMatchesMediaQuery from "../hooks/useMatchesMediaQuery";
 import { joiResolver, useForm } from "@mantine/form";
 import { organizationSchema } from "../types/joiSchemas";
 import { showNotification } from "@mantine/notifications";
-import { useProfile } from "../hooks/useProfile";
 import api from "../hooks/api.client";
+import { UserWithNestedProperties } from "../types/types";
+import { useStoreActions } from "../store";
+import { useRouter } from "next/router";
 
 function AppAddOrganizationModal() {
-  const { userRevalidate } = useProfile();
+  const router = useRouter();
+  const setUser = useStoreActions((actions) => actions.setUser);
   const [opened, { open, close }] = useDisclosure(false);
   const { ltExtraSmall } = useMatchesMediaQuery();
 
@@ -49,12 +52,16 @@ function AppAddOrganizationModal() {
     setLoadingAddOrganization(true);
     try {
       await api.post("/api/organization", form.values);
-      userRevalidate();
       close();
       showNotification({
         title: "Organization added",
         message: "Now you can get a subscription",
       });
+      const user: UserWithNestedProperties = await api
+        .get("/api/profile/me")
+        .then((res) => res.data);
+      setUser(user);
+      router.push("/subscription");
     } catch (err) {
       showNotification({
         color: "red",

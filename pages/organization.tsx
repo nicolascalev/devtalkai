@@ -115,8 +115,7 @@ function OrganizationPage() {
                 label="Roles"
                 description="Roles help you know what answers you can expect"
               >
-                {JSON.parse(user.organization.roles as string).join(", ") ||
-                  "-"}
+                {(user.organization.roles as string[]).join(", ") || "-"}
               </AppOrganizationFeature>
             </Card>
           </div>

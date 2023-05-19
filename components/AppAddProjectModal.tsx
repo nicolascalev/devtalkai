@@ -53,7 +53,12 @@ function AppAddProjectModal({
   const [securityConsiderations, setSecurityConsiderations] = useState<
     SelectItemType[]
   >([]);
-  const [timeConstraints, setTimeConstraints] = useState(["uno", "fod"]);
+  const [timeConstraints, setTimeConstraints] = useState([
+    "Under 1 week",
+    "1 - 2 weeks",
+    "2 - 4 weeks",
+    "4+ weeks",
+  ]);
 
   const [loadingAddProject, setLoadingAddProject] = useState(false);
   async function onOrganizationSubmit(e: any) {
@@ -200,7 +205,7 @@ function AppAddProjectModal({
           <Select
             mt="xs"
             label="Time constraints"
-            placeholder="Pick one"
+            placeholder="Pick or add one"
             searchable
             clearable
             creatable

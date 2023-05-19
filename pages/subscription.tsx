@@ -15,7 +15,7 @@ import {
   NumberInput,
   useMantineTheme,
 } from "@mantine/core";
-import { IconEdit } from "@tabler/icons-react";
+import { IconEdit, IconInfoCircle } from "@tabler/icons-react";
 import useMatchesMediaQuery from "../hooks/useMatchesMediaQuery";
 import api from "../hooks/api.client";
 import { useDisclosure } from "@mantine/hooks";
@@ -48,7 +48,7 @@ function SubscriptionPage() {
   if (!user) return null;
 
   return (
-    <div>
+    <div style={{ paddingBottom: "50px" }}>
       <Container size="md" mb="lg" p={0}>
         <Title order={1} my="xl">
           Subscription
@@ -108,43 +108,53 @@ function SubscriptionPage() {
 
       {!user.stripeSub && (
         <div>
-          <Container size="md" mb="md">
+          <Container size="md" mb="md" p={0}>
             <Alert
-              variant="outline"
+              variant="light"
+              color="gray"
+              icon={<IconInfoCircle />}
               title="It can take a few minutes before your subscriptions is shown"
             >
               <Text>
                 If you already got a subscription, you can refresh this page
                 until your subscription is shown.
               </Text>
-              {process.browser && (
-                <Button
-                  variant="default"
-                  component="a"
-                  href={window.location.href}
-                  mt="sm"
-                >
-                  Refresh
-                </Button>
-              )}
+              <Group position="right" mt="sm">
+                {process.browser && (
+                  <Button
+                    variant="default"
+                    component="a"
+                    href={window.location.href}
+                  >
+                    Refresh
+                  </Button>
+                )}
+              </Group>
             </Alert>
           </Container>
           {isDark ? (
-            <stripe-pricing-table
-              pricing-table-id="prctbl_1N7TYABQSgJN6JQglw4mYIe1"
-              publishable-key="pk_test_51N7PnyBQSgJN6JQgSYvB88KSyjpiOnfjju3PjWCp6gYw1YM1Z87vvdN1AR2YVAg3Qouyoej1BhYAfEF4c7JEUx4D00WBndmp8O"
-              client-reference-id={user.id}
-              customer-email={user.email}
-            ></stripe-pricing-table>
-            
-            ) : (
+            <>
+              <stripe-pricing-table
+                pricing-table-id="prctbl_1N7TYABQSgJN6JQglw4mYIe1"
+                publishable-key="pk_test_51N7PnyBQSgJN6JQgSYvB88KSyjpiOnfjju3PjWCp6gYw1YM1Z87vvdN1AR2YVAg3Qouyoej1BhYAfEF4c7JEUx4D00WBndmp8O"
+                client-reference-id={user.id}
+                customer-email={user.email}
+              ></stripe-pricing-table>
+              {/* this is necesary because stripe table leaves a white line at the bottom */}
+              <Box
+                w="100%"
+                h={10}
+                bg={isDark ? "dark.7" : "gray.0"}
+                style={{ marginTop: "-2px", position: "relative" }}
+              ></Box>
+            </>
+          ) : (
             <stripe-pricing-table
               pricing-table-id="prctbl_1N9Au6BQSgJN6JQg7IRaTUx9"
               publishable-key="pk_test_51N7PnyBQSgJN6JQgSYvB88KSyjpiOnfjju3PjWCp6gYw1YM1Z87vvdN1AR2YVAg3Qouyoej1BhYAfEF4c7JEUx4D00WBndmp8O"
               client-reference-id={user.id}
               customer-email={user.email}
             ></stripe-pricing-table>
-
           )}
         </div>
       )}
