@@ -25,7 +25,6 @@ export default withApiAuthRequired(async function organizationHanlder(
     }
 
     const data: Prisma.OrganizationCreateInput = req.body;
-    data.roles = JSON.stringify(req.body.roles || []);
     data.admin = {
       connect: { id: user.id },
     };

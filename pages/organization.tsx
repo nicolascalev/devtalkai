@@ -28,6 +28,7 @@ import useOrganizationProjects from "../hooks/useOrganizationProjects";
 import AppProjectCard from "../components/AppProjectCard";
 import AppAddProjectModal from "../components/AppAddProjectModal";
 import useOrganizationSubscription from "../hooks/useOrganizationSubscription";
+import Link from "next/link";
 export const getServerSideProps = withPageAuthRequired();
 
 function OrganizationPage() {
@@ -54,7 +55,11 @@ function OrganizationPage() {
             organization
           </Text>
           <Group align="center" mt="sm" spacing="xs">
-            <Button variant="default">Invites</Button>
+            <Link href="/profile" passHref>
+              <Button variant="default" component="a">
+                Invites
+              </Button>
+            </Link>
             <AppAddOrganizationModal />
           </Group>
         </Card>

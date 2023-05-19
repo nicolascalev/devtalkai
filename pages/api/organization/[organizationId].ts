@@ -26,10 +26,7 @@ export default withApiAuthRequired(async function organizationMembersHandler(
     try {
       await prisma.organization.update({
         where: { id: Number(req.query.organizationId) },
-        data: {
-          ...req.body,
-          roles: JSON.stringify(req.body.roles || []),
-        },
+        data: req.body,
       });
 
       return res.status(200).send("Organization updated");

@@ -17,9 +17,7 @@ function AppUpdateOrganizationForm({
 }: AppUpdateOrganizationForm) {
   const { userRevalidate } = useProfile();
 
-  const currentRoles = organization
-    ? JSON.parse(organization.roles as string)
-    : [];
+  const currentRoles = (organization?.roles as string[]) || [];
 
   const form = useForm({
     validate: joiResolver(organizationSchema),
@@ -50,8 +48,8 @@ function AppUpdateOrganizationForm({
       showNotification({
         message: "You haven't made changes to the organization",
         color: "yellow",
-      })
-      return
+      });
+      return;
     }
     if (form.validate().hasErrors) {
       showNotification({
