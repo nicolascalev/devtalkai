@@ -21,7 +21,9 @@ import api from "../hooks/api.client";
 import { useDisclosure } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { useProfile } from "../hooks/useProfile";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 
+export const getServerSideProps = withPageAuthRequired();
 declare global {
   namespace JSX {
     interface IntrinsicElements {

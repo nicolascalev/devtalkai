@@ -13,21 +13,30 @@ import {
   Badge,
   Menu,
 } from "@mantine/core";
-import { useDisclosure, useHover } from "@mantine/hooks";
+import { useDisclosure } from "@mantine/hooks";
 import {
   IconDots,
   IconEdit,
-  IconExternalLink,
   IconInfoCircle,
   IconLogout,
 } from "@tabler/icons-react";
 import React, { ReactNode } from "react";
 import { useStoreState } from "../store";
 import AppUpdateProfile from "../components/AppUpdateProfile";
+import type { BoxProps } from "@mantine/core";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+import useUserInvites from "../hooks/useUserInvites";
+import AppInviteCard, {
+  AppInviteCardSkeleton,
+} from "../components/AppInviteCard";
+
+export const getServerSideProps = withPageAuthRequired();
 
 function ProfilePage() {
   const user = useStoreState((state) => state.user);
   const [opened, { open, close }] = useDisclosure(false);
+  const { invites, invitesLoading, invitesLoadingError, invitesRevalidate } =
+    useUserInvites();
 
   if (!user) return null;
 
@@ -80,20 +89,20 @@ function ProfilePage() {
             <Card.Section>
               <Divider my="md" />
             </Card.Section>
-            <AppOrganizationFeature
+            <AppProfileAttribute
               mb="xs"
               label="Technical Proficiency"
               description="This helps us know how technical the answers can be"
             >
               {user.technicalProficiency || "-"}
-            </AppOrganizationFeature>
-            <AppOrganizationFeature
+            </AppProfileAttribute>
+            <AppProfileAttribute
               mb="xs"
               label="Role"
               description="This is helps us give you bettwe answers"
             >
               {user.role || "-"}
-            </AppOrganizationFeature>
+            </AppProfileAttribute>
           </Card>
         </div>
         <div>
@@ -105,20 +114,15 @@ function ProfilePage() {
               <Text c="dimmed">Invites to join an organization</Text>
             </div>
             <Text c="dimmed" size="md" ml={5}>
-              10
+              {invites?.length}
             </Text>
           </Group>
-          <Card withBorder>
-            <Group noWrap align="center" position="apart">
-              <Text>Organization name</Text>
-              <Badge variant="dot">Accepted</Badge>
-            </Group>
-            <Text c="dimmed">Feb 13</Text>
-            <Group align="center" position="right" spacing="xs">
-              <Button variant="default">Reject</Button>
-              <Button>Accept</Button>
-            </Group>
-          </Card>
+          {invitesLoading && <AppInviteCardSkeleton />}
+          {invites?.map((invite) => (
+            <Box key={invite.id}>
+              <AppInviteCard invite={invite} />
+            </Box>
+          ))}
         </div>
       </SimpleGrid>
     </Container>
@@ -127,7 +131,7 @@ function ProfilePage() {
 
 export default ProfilePage;
 
-function AppOrganizationFeature({
+function AppProfileAttribute({
   label,
   description,
   children,
@@ -136,7 +140,7 @@ function AppOrganizationFeature({
   label: string;
   description: string;
   children: ReactNode;
-} & any) {
+} & BoxProps) {
   return (
     <Box {...rest}>
       <Group spacing={5} noWrap align="center" c="dimmed">

@@ -7,3 +7,7 @@ export type UserWithNestedProperties = Prisma.UserGetPayload<{
 export type OutputWithProject = Prisma.OutputGetPayload<{
   include: { project: true }
 }>
+
+export type InviteWithOrganization = Prisma.InviteGetPayload<{
+  include: { organization: true }
+}>
