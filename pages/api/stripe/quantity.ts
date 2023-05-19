@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import stripe from "../../../utils/stripe.client";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
-import { UserWithSubscription } from "../../../types/types";
+import { UserWithNestedProperties } from "../../../types/types";
 import STRIPE_PLANS from "../../../utils/plans";
 
 export default withApiAuthRequired(async function subscriptionQuantityHandler(
@@ -10,7 +10,7 @@ export default withApiAuthRequired(async function subscriptionQuantityHandler(
 ) {
   if (req.method === "POST") {
     const session: any = await getSession(req, res);
-    const user: UserWithSubscription = session.user;
+    const user: UserWithNestedProperties = session.user;
 
     if (!user.stripeSub) {
       return res

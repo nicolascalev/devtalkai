@@ -13,7 +13,11 @@ import {
   Center,
   ThemeIcon,
 } from "@mantine/core";
-import { IconExternalLink, IconInfoCircle, IconPackage } from "@tabler/icons-react";
+import {
+  IconExternalLink,
+  IconInfoCircle,
+  IconPackage,
+} from "@tabler/icons-react";
 import React, { ReactNode } from "react";
 import { useStoreState } from "../store";
 import AppAddOrganizationModal from "../components/AppAddOrganizationModal";
@@ -21,14 +25,14 @@ import AppAddOrganizationModal from "../components/AppAddOrganizationModal";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import useOrganizationProjects from "../hooks/useOrganizationProjects";
 import AppProjectCard from "../components/AppProjectCard";
+import AppAddProjectModal from "../components/AppAddProjectModal";
 export const getServerSideProps = withPageAuthRequired();
 
 function OrganizationPage() {
   const user = useStoreState((state) => state.user);
 
-  const { projects, projectsLoading, projectsError } = useOrganizationProjects(
-    user?.organization?.id
-  );
+  const { projects, projectsLoading, projectsError, projectsRevalidate } =
+    useOrganizationProjects(user?.organization?.id);
 
   if (!user) return null;
 
@@ -114,10 +118,10 @@ function OrganizationPage() {
                   {projects?.length || ""}
                 </Text>
               </Text>
-              <Button>Add</Button>
+              <AppAddProjectModal onProjectAdded={() => projectsRevalidate()} />
             </Group>
             {projects?.map((project) => (
-              <AppProjectCard key={project.id} project={project} />
+              <AppProjectCard mb="sm" key={project.id} project={project} />
             ))}
             {projectsLoading && (
               <Card withBorder>

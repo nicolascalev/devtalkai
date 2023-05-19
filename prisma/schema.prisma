@@ -45,7 +45,7 @@ model Organization {
   trainingResourcesUrl String?
   domainIndustry       String
   domainLiteracy       String
-  roles                Json
+  roles                Json @default("[]")
   invites              Invite[]
   outputs              Output[]
   members              User[]    @relation("OrganizationMembers")
@@ -55,13 +55,19 @@ model Organization {
 }
 
 model Project {
-  id             Int          @id @default(autoincrement())
-  createdAt      DateTime     @default(now())
-  label          String
-  description    String
-  outputs        Output[]
-  organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  id                     Int          @id @default(autoincrement())
+  createdAt              DateTime     @default(now())
+  label                  String
+  description            String
+  objectives             Json @default("[]")
+  technicalStack         Json @default("[]")
+  timeConstraints        String?
+  integrations           Json @default("[]")
+  securityConsiderations Json @default("[]")
+  documentationLink      String?
+  outputs                Output[]
+  organizationId         Int
+  organization           Organization @relation(fields: [organizationId], references: [id])
 }
 
 model Invite {

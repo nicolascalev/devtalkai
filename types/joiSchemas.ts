@@ -19,3 +19,14 @@ export const profileSchema = Joi.object({
   technicalProficiency: Joi.string().allow("").allow(null),
   role: Joi.string().allow("").allow(null),
 });
+
+export const projectSchema = Joi.object({
+  label: Joi.string(),
+  description: Joi.string(),
+  objectives: Joi.array(),
+  technicalStack: Joi.array(),
+  timeConstraints: Joi.string().allow("").allow(null),
+  integrations: Joi.array(),
+  securityConsiderations: Joi.array(),
+  documentationLink: Joi.string().uri().allow(null).allow(""),
+});

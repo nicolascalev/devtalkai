@@ -3,7 +3,7 @@ import { basicFetcher } from "./api.client";
 import { Project } from "@prisma/client";
 
 export default function useOrganizationProjects(organizationId?: number) {
-  const { data, isLoading, error } = useSWR(
+  const { data, isLoading, error, mutate } = useSWR(
     organizationId ? `/api/organization/${organizationId}/projects` : null,
     basicFetcher
   );
@@ -12,5 +12,6 @@ export default function useOrganizationProjects(organizationId?: number) {
     projects: data as Project[],
     projectsLoading: isLoading,
     projectsError: error,
+    projectsRevalidate: mutate,
   };
 }
