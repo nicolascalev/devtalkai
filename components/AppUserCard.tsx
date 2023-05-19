@@ -18,7 +18,7 @@ function AppUserCard(props: AppUserCardProps) {
         <Text c="dimmed" size="sm">
           Role
         </Text>
-        <Text size="sm">{props.user.role}</Text>
+        <Text size="sm">{props.user.role || "-"}</Text>
       </Group>
     </Card>
   );

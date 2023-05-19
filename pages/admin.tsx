@@ -48,10 +48,10 @@ function AdminPage() {
       <Title order={1} my="xl">
         Admin Settings
       </Title>
-      <Tabs variant="outline" defaultValue="organization">
+      <Tabs variant="outline" defaultValue="Members">
         <Tabs.List>
-          <Tabs.Tab value="organization">Organization</Tabs.Tab>
           <Tabs.Tab value="Members">Members</Tabs.Tab>
+          <Tabs.Tab value="organization">Organization</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="organization" pt="xs">
@@ -61,7 +61,7 @@ function AdminPage() {
         </Tabs.Panel>
 
         <Tabs.Panel value="Members" pt="xs">
-          <Alert mb="md" color={isDark ? "gray" : "dark"} variant="outline">
+          <Alert mb="md" variant="light" color="gray">
             <Text fw={500}>Allowed emails in list: {count?.inviteCount}</Text>
             <Group position="apart" spacing="xs">
               <Text>Your subscription is based on the allowed-emails list</Text>

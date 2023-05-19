@@ -49,9 +49,13 @@ export function AppUserButton() {
             },
           }}
         >
-          <Group>
-            <Avatar src={`https://api.dicebear.com/5.x/initials/svg?seed=${user.fullName}&backgroundColor=25262b`}>{user.fullName}</Avatar>
-            <Box sx={{ flex: 1 }}>
+          <Group noWrap>
+            <Avatar
+              src={`https://api.dicebear.com/5.x/initials/svg?seed=${user.fullName}&backgroundColor=25262b`}
+            >
+              {user.fullName}
+            </Avatar>
+            <Box sx={{ flex: 1, whiteSpace: "nowrap", overflow: "hidden" }}>
               <Text size="sm" weight={500}>
                 {user.fullName}
               </Text>

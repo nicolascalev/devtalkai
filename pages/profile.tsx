@@ -6,17 +6,21 @@ import {
   Text,
   Divider,
   Group,
-  Button,
   Popover,
   Box,
   ActionIcon,
-  Badge,
   Menu,
+  Alert,
+  useMantineTheme,
+  Button,
+  Center,
+  ThemeIcon,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
   IconDots,
   IconEdit,
+  IconInbox,
   IconInfoCircle,
   IconLogout,
 } from "@tabler/icons-react";
@@ -29,6 +33,8 @@ import useUserInvites from "../hooks/useUserInvites";
 import AppInviteCard, {
   AppInviteCardSkeleton,
 } from "../components/AppInviteCard";
+import { useProfile } from "../hooks/useProfile";
+import AppAddOrganizationModal from "../components/AppAddOrganizationModal";
 
 export const getServerSideProps = withPageAuthRequired();
 
@@ -37,6 +43,12 @@ function ProfilePage() {
   const [opened, { open, close }] = useDisclosure(false);
   const { invites, invitesLoading, invitesLoadingError, invitesRevalidate } =
     useUserInvites();
+  const { userRevalidate } = useProfile();
+
+  function onAcceptInvite() {
+    invitesRevalidate();
+    userRevalidate();
+  }
 
   if (!user) return null;
 
@@ -59,7 +71,7 @@ function ProfilePage() {
                 <Text c="dimmed">{user.email}</Text>
               </div>
 
-              <Menu shadow="md" width={200}>
+              <Menu shadow="md" width={200} position="bottom-end">
                 <Menu.Target>
                   <ActionIcon>
                     <IconDots size={16} />
@@ -117,12 +129,61 @@ function ProfilePage() {
               {invites?.length}
             </Text>
           </Group>
+          {user.adminOf && (
+            <Alert
+              title="You are an organization's administrator"
+              variant="light"
+              color="gray"
+              mb="md"
+            >
+              You can not accept invites to join other organizations or leave
+              your current one. If this is an issue please contact support
+              <Group position="right" mt="xs">
+                <Button
+                  variant="default"
+                  component="a"
+                  href="mailto:nicolascalevg@gmail.com?subject=[ADMIN ORG CHANGE] I am an admin and want to leave my organization"
+                >
+                  Contact support
+                </Button>
+              </Group>
+            </Alert>
+          )}
           {invitesLoading && <AppInviteCardSkeleton />}
           {invites?.map((invite) => (
             <Box key={invite.id}>
-              <AppInviteCard invite={invite} />
+              <AppInviteCard
+                invite={invite}
+                disabled={user.adminOf !== null}
+                user={user}
+                onOrganizationChange={() => onAcceptInvite()}
+                mb="sm"
+              />
             </Box>
           ))}
+          {!user.organization && (
+            <Card withBorder>
+              <Center mih="150px">
+                <Box maw="90%">
+                  <Group position="center" mb="sm">
+                    <ThemeIcon size="xl" color="gray" variant="light">
+                      <IconInbox />
+                    </ThemeIcon>
+                  </Group>
+                  <Text ta="center" fw={500}>
+                    Organization not set
+                  </Text>
+                  <Text ta="center" size="sm" c="dimmed">
+                    When you get invites they will be shown here. You can also
+                    add your own organization.
+                  </Text>
+                  <Group position="center" mt="sm">
+                    <AppAddOrganizationModal />
+                  </Group>
+                </Box>
+              </Center>
+            </Card>
+          )}
         </div>
       </SimpleGrid>
     </Container>
