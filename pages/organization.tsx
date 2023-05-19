@@ -12,6 +12,7 @@ import {
   Skeleton,
   Center,
   ThemeIcon,
+  Alert,
 } from "@mantine/core";
 import {
   IconExternalLink,
@@ -26,10 +27,14 @@ import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import useOrganizationProjects from "../hooks/useOrganizationProjects";
 import AppProjectCard from "../components/AppProjectCard";
 import AppAddProjectModal from "../components/AppAddProjectModal";
+import useOrganizationSubscription from "../hooks/useOrganizationSubscription";
 export const getServerSideProps = withPageAuthRequired();
 
 function OrganizationPage() {
   const user = useStoreState((state) => state.user);
+  const { subscription, subscriptionLoading } = useOrganizationSubscription(
+    user?.organizationId
+  );
 
   const { projects, projectsLoading, projectsError, projectsRevalidate } =
     useOrganizationProjects(user?.organization?.id);
@@ -118,8 +123,29 @@ function OrganizationPage() {
                   {projects?.length || ""}
                 </Text>
               </Text>
-              <AppAddProjectModal onProjectAdded={() => projectsRevalidate()} />
+              <AppAddProjectModal
+                onProjectAdded={() => projectsRevalidate()}
+                buttonProps={{
+                  loading: subscriptionLoading,
+                  disabled:
+                    subscriptionLoading ||
+                    subscription?.projectLimit === projects?.length,
+                }}
+              />
             </Group>
+            {subscription?.projectLimit === projects?.length && (
+              <Alert
+                variant="light"
+                color="gray"
+                title="Reached project limit"
+                mb="sm"
+                icon={<IconInfoCircle />}
+              >
+                The organization has reached the limit of projects for this
+                plan. Please contact the organization administrator to consider
+                a plan upgrade.
+              </Alert>
+            )}
             {projects?.map((project) => (
               <AppProjectCard mb="sm" key={project.id} project={project} />
             ))}

@@ -8,6 +8,7 @@ import {
   Text,
   TextInput,
   Textarea,
+  ButtonProps,
 } from "@mantine/core";
 import React, { useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
@@ -15,16 +16,19 @@ import useMatchesMediaQuery from "../hooks/useMatchesMediaQuery";
 import { joiResolver, useForm } from "@mantine/form";
 import { projectSchema } from "../types/joiSchemas";
 import { showNotification } from "@mantine/notifications";
-import { useProfile } from "../hooks/useProfile";
 import api from "../hooks/api.client";
 
 type SelectItemType = { value: string; label: string };
 
 type AppAddProjectModalProps = {
   onProjectAdded: () => void;
+  buttonProps?: ButtonProps;
 };
 
-function AppAddProjectModal({ onProjectAdded }: AppAddProjectModalProps) {
+function AppAddProjectModal({
+  onProjectAdded,
+  buttonProps,
+}: AppAddProjectModalProps) {
   const [opened, { open, close }] = useDisclosure(false);
   const { ltExtraSmall } = useMatchesMediaQuery();
 
@@ -91,7 +95,9 @@ function AppAddProjectModal({ onProjectAdded }: AppAddProjectModalProps) {
 
   return (
     <>
-      <Button onClick={() => open()}>Add</Button>
+      <Button {...buttonProps} onClick={() => open()}>
+        Add
+      </Button>
 
       <Modal
         opened={opened}
