@@ -7,20 +7,25 @@ import {
   Divider,
   Textarea,
   ActionIcon,
-  Alert,
   Card,
   useMantineTheme,
 } from "@mantine/core";
 import React, { useState } from "react";
 import AppPreferencesModal from "../components/AppPreferencesModal";
 import {
-  IconBookmark,
-  IconCopy,
-  IconRefresh,
   IconSend,
 } from "@tabler/icons-react";
 import { useElementSize } from "@mantine/hooks";
 import api from "../hooks/api.client";
+import AppOutputList from "../components/AppOutputList";
+import { showNotification } from "@mantine/notifications";
+import { Output } from "@prisma/client";
+import { OutputListItemType } from "../types/types";
+
+type PromptResonseType = {
+  output: Output;
+  tokens: number | undefined;
+};
 
 function WritingPage() {
   const theme = useMantineTheme();
@@ -33,15 +38,38 @@ function WritingPage() {
     setPreferences(prefs);
   }
 
+  const [items, setItems] = useState<OutputListItemType[]>([]);
+
   const [loadingSendPrompt, setLoadingSendPrompt] = useState(false);
   async function submitPrompt() {
     setLoadingSendPrompt(true);
+    setItems((prev) => [
+      ...prev,
+      {
+        role: "user",
+        content: prompt,
+      },
+    ]);
     try {
-      const data = await api
+      const data: PromptResonseType = await api
         .post("/api/prompt", { projectId: 3 })
         .then((res) => res.data);
-      console.log(data);
+      setItems((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: data.output.body,
+          output: data.output,
+        },
+      ]);
+      setPrompt("");
     } catch (err) {
+      setItems((prev) => prev.slice(0, -1));
+      showNotification({
+        color: "red",
+        title: "Please try again",
+        message: "There was an error getting a response",
+      });
       console.log(err);
     } finally {
       setLoadingSendPrompt(false);
@@ -76,41 +104,7 @@ function WritingPage() {
         </Group>
         <Divider my="md" />
       </div>
-      <div>
-        <Group mb="sm">
-          <Card maw="90%" miw="300px" withBorder bg="inherit">
-            <Text size="md">
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum,
-              nobis. Animi recusandae alias voluptatum, ex, magni et temporibus
-              soluta aperiam, accusamus quaerat facere. Ducimus aspernatur sit
-              tempore numquam. Repellat, harum.
-            </Text>
-            <Group mt="xs" position="right">
-              <Group noWrap align="center" spacing="xs">
-                <ActionIcon variant="default">
-                  <IconRefresh size={16} />
-                </ActionIcon>
-                <ActionIcon variant="default">
-                  <IconBookmark size={16} />
-                </ActionIcon>
-                <ActionIcon variant="default">
-                  <IconCopy size={16} />
-                </ActionIcon>
-              </Group>
-            </Group>
-          </Card>
-        </Group>
-        <Group mb="sm" position="right">
-          <Alert maw="90%" variant="outline" color={isDark ? "gray" : "dark"}>
-            <Text size="md">
-              Lorem ipsum, dolor sit amet consectetur adipisicing elit. Illum,
-              nobis. Animi recusandae alias voluptatum, ex, magni et temporibus
-              soluta aperiam, accusamus quaerat facere. Ducimus aspernatur sit
-              tempore numquam. Repellat, harum.
-            </Text>
-          </Alert>
-        </Group>
-      </div>
+      <AppOutputList items={items} />
 
       <div style={{ height: height + 16 }}></div>
       <Card
@@ -137,6 +131,7 @@ function WritingPage() {
               placeholder="Send signals to my house to water my plants..."
               value={prompt}
               onChange={(event) => setPrompt(event.currentTarget.value)}
+              disabled={loadingSendPrompt}
             />
             <div>
               <ActionIcon

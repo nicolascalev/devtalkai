@@ -12,6 +12,7 @@
     "@auth0/nextjs-auth0": "^2.6.0",
     "@emotion/react": "^11.10.0",
     "@emotion/server": "^11.10.0",
+    "@formkit/auto-animate": "^1.0.0-beta.6",
     "@mantine/carousel": "^6.0.10",
     "@mantine/core": "6.0.10",
     "@mantine/dates": "^6.0.10",
