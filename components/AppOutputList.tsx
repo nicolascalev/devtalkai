@@ -11,6 +11,7 @@ import AppOutputListAssistantItem from "./AppOutputListAssistantItem";
 
 type AppOutputListProps = {
   items: ChatCompletionRequestMessage[];
+  bottomRef: React.MutableRefObject<HTMLDivElement>;
 };
 
 function AppOutputList(props: AppOutputListProps) {
@@ -42,6 +43,8 @@ function AppOutputList(props: AppOutputListProps) {
           );
         }
       })}
+      {/* used for scroll to bottom */}
+      <div ref={props.bottomRef} style={{ height: "52px" }}></div>
     </div>
   );
 }

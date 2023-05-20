@@ -27,6 +27,9 @@ export default withApiAuthRequired(async function outputHandler(
           include: {
             project: true,
           },
+          orderBy: {
+            createdAt: "desc",
+          },
         },
         { limit: 12, page }
       );

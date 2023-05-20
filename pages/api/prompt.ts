@@ -1,11 +1,21 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import openai from "../../utils/openai.client";
-import { CreateChatCompletionResponse } from "openai/dist/api";
+import {
+  ChatCompletionRequestMessage,
+} from "openai/dist/api";
 import prisma from "../../prisma/client";
 import { UserWithNestedProperties } from "../../types/types";
 import { getPrompt, getPromptContext } from "../../utils/getPrompt";
 import { AxiosError } from "axios";
+
+type PromptBody = {
+  history: ChatCompletionRequestMessage[];
+  prompt: string;
+  projectId: number;
+  voice: string;
+  mark: string;
+};
 
 export default withApiAuthRequired(async function promptHandler(
   req: NextApiRequest,
@@ -23,9 +33,11 @@ export default withApiAuthRequired(async function promptHandler(
       return res.status(400).send("User is not a member in an organization");
     }
 
+    const body: PromptBody = req.body;
+
     try {
       const project = await prisma.project.findUnique({
-        where: { id: req.body.projectId },
+        where: { id: body.projectId },
         include: { organization: true },
       });
 
@@ -43,8 +55,8 @@ export default withApiAuthRequired(async function promptHandler(
 
       const context = getPromptContext({ project, user });
       const prompt = getPrompt({
-        prompt: "This is a feture idea: Allow tattoo artists to offer workshops too so they can get hired and make more money",
-        voice: "Marketing team",
+        prompt: body.prompt,
+        voice: body.voice,
       });
 
       const result = await openai.createChatCompletion({
@@ -54,6 +66,7 @@ export default withApiAuthRequired(async function promptHandler(
             role: "user",
             content: context,
           },
+          ...body.history,
           {
             role: "user",
             content: prompt,
@@ -67,12 +80,14 @@ export default withApiAuthRequired(async function promptHandler(
           project: { connect: { id: project!.id } },
           body: result.data.choices[0].message!.content,
           organization: { connect: { id: user.organizationId } },
-          markedAs: "feature",
-          voice: "Web Developer",
+          markedAs: body.mark,
+          voice: body.voice,
         },
       });
 
-      return res.status(200).json({ output, tokens: result.data.usage?.total_tokens });
+      return res
+        .status(200)
+        .json({ output, tokens: result.data.usage?.total_tokens });
     } catch (err) {
       console.log(err);
       const error: AxiosError = err as any;
