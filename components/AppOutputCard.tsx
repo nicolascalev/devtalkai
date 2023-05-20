@@ -1,4 +1,4 @@
-import { ActionIcon, Card, Group, Text } from "@mantine/core";
+import { ActionIcon, Card, Group, Spoiler, Text, useMantineTheme } from "@mantine/core";
 import { IconBookmark, IconBookmarkOff } from "@tabler/icons-react";
 import React, { useState } from "react";
 import { OutputWithProject } from "../types/types";
@@ -12,6 +12,7 @@ type AppOutputCardProps = Omit<CardProps, "children"> & {
 };
 
 function AppOutputCard(props: AppOutputCardProps) {
+  const theme = useMantineTheme();
   const [output, setOutput] = useState(props.output);
   const [bookmarkLoading, setBookmarkLoading] = useState(false);
 
@@ -58,7 +59,15 @@ function AppOutputCard(props: AppOutputCardProps) {
           </ActionIcon>
         </Group>
       </Group>
-      <Text my="sm">{output.body}</Text>
+      <Spoiler
+        maxHeight={185}
+        showLabel="Show more"
+        hideLabel="Hide"
+        transitionDuration={0.3}
+        styles={{ control: { fontSize: theme.fontSizes.sm } }}
+      >
+        <Text my="sm" style={{ whiteSpace: "pre-wrap" }}>{output.body}</Text>
+      </Spoiler>
       <Group noWrap align="center" position="apart">
         <Text c="dimmed" size="sm">
           {output.markedAs}

@@ -20,15 +20,32 @@ import {
   IconSend,
 } from "@tabler/icons-react";
 import { useElementSize } from "@mantine/hooks";
+import api from "../hooks/api.client";
 
 function WritingPage() {
   const theme = useMantineTheme();
-  const { ref: inputRef, height } = useElementSize();
   const isDark = theme.colorScheme === "dark";
+  const { ref: inputRef, height } = useElementSize();
   const [preferences, setPreferences] = useState<string[]>([]);
 
+  const [prompt, setPrompt] = useState("");
   function onPreferencesChange(prefs: string[]) {
     setPreferences(prefs);
+  }
+
+  const [loadingSendPrompt, setLoadingSendPrompt] = useState(false);
+  async function submitPrompt() {
+    setLoadingSendPrompt(true);
+    try {
+      const data = await api
+        .post("/api/prompt", { projectId: 3 })
+        .then((res) => res.data);
+      console.log(data);
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoadingSendPrompt(false);
+    }
   }
 
   return (
@@ -98,6 +115,7 @@ function WritingPage() {
       <div style={{ height: height + 16 }}></div>
       <Card
         ref={inputRef}
+        bg={isDark ? undefined : "gray.0"}
         p="sm"
         withBorder
         radius={0}
@@ -117,9 +135,17 @@ function WritingPage() {
               maxRows={2}
               autosize
               placeholder="Send signals to my house to water my plants..."
+              value={prompt}
+              onChange={(event) => setPrompt(event.currentTarget.value)}
             />
             <div>
-              <ActionIcon color="primary" variant="filled">
+              <ActionIcon
+                color="primary"
+                variant="filled"
+                disabled={prompt === ""}
+                loading={loadingSendPrompt}
+                onClick={() => submitPrompt()}
+              >
                 <IconSend size={16} />
               </ActionIcon>
             </div>

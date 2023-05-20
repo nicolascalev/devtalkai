@@ -11,3 +11,7 @@ export type OutputWithProject = Prisma.OutputGetPayload<{
 export type InviteWithOrganization = Prisma.InviteGetPayload<{
   include: { organization: true }
 }>
+
+export type ProjectWithOrganization = Prisma.ProjectGetPayload<{
+  include: { organization: true },
+}>
