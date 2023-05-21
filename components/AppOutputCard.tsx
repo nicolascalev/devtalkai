@@ -60,15 +60,15 @@ function AppOutputCard(props: AppOutputCardProps) {
         </Group>
       </Group>
       <Spoiler
-        maxHeight={185}
+        maxHeight={165}
         showLabel="Show more"
         hideLabel="Hide"
         transitionDuration={0.3}
         styles={{ control: { fontSize: theme.fontSizes.sm } }}
       >
-        <Text my="sm" style={{ whiteSpace: "pre-wrap" }}>{output.body}</Text>
+        <Text mt="sm" style={{ whiteSpace: "pre-wrap" }}>{output.body}</Text>
       </Spoiler>
-      <Group noWrap align="center" position="apart">
+      <Group noWrap align="center" position="apart" mt="lg">
         <Text c="dimmed" size="sm">
           {output.markedAs}
         </Text>

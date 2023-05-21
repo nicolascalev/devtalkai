@@ -21,8 +21,10 @@ function AppOutputList(props: AppOutputListProps) {
     <div ref={parent}>
       <Group mb="sm">
         <Card maw="90%" miw="300px" withBorder bg="inherit">
-          <Text size="md">
-            Here I will give some instructions and stuff like that
+          <Text size="md" style={{ whiteSpace: "pre-wrap"}}>
+{`You can start by asking things like:
+- What are some security considerations for this project?
+- What are some things to consider for better user experience?`}
           </Text>
         </Card>
       </Group>

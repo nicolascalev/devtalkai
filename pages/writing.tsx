@@ -9,14 +9,20 @@ import {
   Card,
   useMantineTheme,
   Button,
-  Popover,
   Transition,
+  Box,
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import AppPreferencesModal, {
   Preferences,
 } from "../components/AppPreferencesModal";
-import { IconRefresh, IconSend } from "@tabler/icons-react";
+import {
+  IconEraser,
+  IconExternalLink,
+  IconRefresh,
+  IconSend,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useElementSize, useScrollIntoView } from "@mantine/hooks";
 import api from "../hooks/api.client";
 import AppOutputList from "../components/AppOutputList";
@@ -24,6 +30,8 @@ import { showNotification } from "@mantine/notifications";
 import { Output } from "@prisma/client";
 import { OutputListItemType } from "../types/types";
 import { ChatCompletionRequestMessage } from "openai/dist/api";
+import Link from "next/link";
+import { useStoreActions, useStoreState } from "../store";
 
 type PromptResonseType = {
   output: Output;
@@ -45,7 +53,12 @@ function WritingPage() {
     setPreferences(prefs);
   }
 
-  const [items, setItems] = useState<OutputListItemType[]>([]);
+  const history = useStoreState((state) => state.history);
+  const setHistory = useStoreActions((actions) => actions.setHistory);
+  const [items, setItems] = useState<OutputListItemType[]>(history);
+  useEffect(() => {
+    setHistory(items);
+  }, [items, setHistory]);
 
   const [loadingSendPrompt, setLoadingSendPrompt] = useState(false);
 
@@ -156,29 +169,53 @@ function WritingPage() {
           width: "calc(100vw - var(--mantine-navbar-width))",
         }}
       >
-        <Transition
-          mounted={showRegenerateButton}
-          transition="slide-up"
-          duration={400}
-          timingFunction="ease"
+        <Group
+          w="100%"
+          position="center"
+          style={{
+            position: "absolute",
+            top: "-48px",
+          }}
         >
-          {(styles) => (
-            <Button
-              variant="default"
-              style={{
-                ...styles,
-                position: "absolute",
-                left: "50%",
-                top: "-36px",
-                transform: "translateY(-50%) translateX(-50%)",
-              }}
-              rightIcon={<IconRefresh size={16} />}
-              onClick={() => onClickRegenerate()}
+          <Group spacing="xs">
+            <Transition
+              mounted={showRegenerateButton}
+              transition="slide-up"
+              duration={400}
+              timingFunction="ease"
             >
-              Regenerate
-            </Button>
-          )}
-        </Transition>
+              {(styles) => (
+                <Button
+                  variant="default"
+                  style={{ ...styles, boxShadow: theme.shadows.sm }}
+                  rightIcon={<IconRefresh size={16} />}
+                  onClick={() => onClickRegenerate()}
+                >
+                  Regenerate
+                </Button>
+              )}
+            </Transition>
+            <Transition
+              mounted={items.length > 0 && !loadingSendPrompt}
+              transition="slide-up"
+              duration={400}
+              timingFunction="ease"
+            >
+              {(styles) => (
+                <Button
+                  variant="default"
+                  rightIcon={
+                    <IconTrash size={16} color={theme.colors.red[6]} />
+                  }
+                  style={{ ...styles, boxShadow: theme.shadows.sm }}
+                  onClick={() => setItems([])}
+                >
+                  Reset
+                </Button>
+              )}
+            </Transition>
+          </Group>
+        </Group>
         {/* IMPORTANT: this works, sometimes it goes under navbar if you resize the window, 
         but the width is set on page load so that's not an issue */}
         <Container size="md" p={0}>
@@ -216,28 +253,33 @@ export default WritingPage;
 function AppPreferences({ preferences }: { preferences: Preferences }) {
   return (
     <Group mt="md" spacing="xs">
-      {preferences.project && (
-        <AppPreferenceItem label={preferences.project.label} type="Project" />
-      )}
-      <AppPreferenceItem label={preferences.mark} type="Marked as" />
-      <AppPreferenceItem label={preferences.voice} type="Voice" />
-    </Group>
-  );
-}
-
-function AppPreferenceItem(props: { label: string; type: string }) {
-  return (
-    <Popover withArrow shadow="md">
-      <Popover.Target>
-        <Button size="sm" color="gray" variant="light" aria-readonly>
-          {props.label}
-        </Button>
-      </Popover.Target>
-      <Popover.Dropdown>
-        <Text size="sm" ta="center">
-          {props.type}
+      <Box miw={125}>
+        <Text c="dimmed" size="sm">
+          Project
         </Text>
-      </Popover.Dropdown>
-    </Popover>
+        <Group spacing={5} align="center">
+          <Text>{preferences.project?.label || "-"}</Text>
+          {preferences.project && (
+            <Link href={"/project/" + preferences.project.value} passHref>
+              <ActionIcon size="sm" variant="light" color="gray" component="a">
+                <IconExternalLink size={14} />
+              </ActionIcon>
+            </Link>
+          )}
+        </Group>
+      </Box>
+      <Box miw={125}>
+        <Text c="dimmed" size="sm">
+          Voice
+        </Text>
+        <Text>{preferences.voice}</Text>
+      </Box>
+      <Box miw={125}>
+        <Text c="dimmed" size="sm">
+          Marked as
+        </Text>
+        <Text>{preferences.mark}</Text>
+      </Box>
+    </Group>
   );
 }

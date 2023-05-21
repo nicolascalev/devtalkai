@@ -14,6 +14,11 @@ const store = createStore<StoreModel>(
       setUser: action((state, payload) => {
         state.user = payload;
       }),
+
+      history: [],
+      setHistory: action((state, payload) => {
+        state.history = payload;
+      }),
     },
     {
       storage: "localStorage",
