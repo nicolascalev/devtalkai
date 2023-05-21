@@ -17,7 +17,6 @@ import AppPreferencesModal, {
   Preferences,
 } from "../components/AppPreferencesModal";
 import {
-  IconEraser,
   IconExternalLink,
   IconRefresh,
   IconSend,
@@ -59,7 +58,7 @@ function WritingPage() {
   useEffect(() => {
     setHistory(items);
   }, [items, setHistory]);
-
+  const [tokens, setTokens] = useState(0);
   const [loadingSendPrompt, setLoadingSendPrompt] = useState(false);
 
   useEffect(() => {
@@ -91,6 +90,7 @@ function WritingPage() {
             mark: preferences.mark,
           })
           .then((res) => res.data);
+        setTokens(data.tokens || 0);
         setItems((prev) => [
           ...prev,
           {
@@ -148,7 +148,7 @@ function WritingPage() {
         {preferences && <AppPreferences preferences={preferences} />}
         <Divider my="md" />
       </div>
-      <AppOutputList items={items} bottomRef={targetRef} />
+      <AppOutputList items={items} tokens={tokens} bottomRef={targetRef} />
 
       <div style={{ height: height + 16 }}></div>
       <Card
@@ -224,13 +224,15 @@ function WritingPage() {
               placeholder="Type your prompt..."
               value={prompt}
               onChange={(event) => setPrompt(event.currentTarget.value)}
-              disabled={loadingSendPrompt}
+              disabled={loadingSendPrompt || tokens === 4096}
             />
             <div>
               <ActionIcon
                 color="primary"
                 variant="filled"
-                disabled={prompt === "" && !loadingSendPrompt}
+                disabled={
+                  (prompt === "" && !loadingSendPrompt) || tokens === 4096
+                }
                 loading={loadingSendPrompt}
                 onClick={() => addItem()}
               >
@@ -257,7 +259,13 @@ function AppPreferences({ preferences }: { preferences: Preferences }) {
           <Text>{preferences.project?.label || "-"}</Text>
           {preferences.project && (
             <Link href={"/project/" + preferences.project.value} passHref>
-              <ActionIcon size="sm" variant="light" color="gray" component="a">
+              <ActionIcon
+                size="sm"
+                variant="light"
+                color="gray"
+                component="a"
+                target="_blank"
+              >
                 <IconExternalLink size={14} />
               </ActionIcon>
             </Link>
