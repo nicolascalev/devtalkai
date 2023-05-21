@@ -145,10 +145,6 @@ function WritingPage() {
           </Title>
           <AppPreferencesModal onPreferencesChange={onPreferencesChange} />
         </Group>
-        <Text size="lg" fw={500}>
-          Generate snippets
-        </Text>
-        <Text c="dimmed">Select your preferences for context first</Text>
         {preferences && <AppPreferences preferences={preferences} />}
         <Divider my="md" />
       </div>
@@ -252,7 +248,7 @@ export default WritingPage;
 
 function AppPreferences({ preferences }: { preferences: Preferences }) {
   return (
-    <Group mt="md" spacing="xs">
+    <Group spacing="xs">
       <Box miw={125}>
         <Text c="dimmed" size="sm">
           Project
