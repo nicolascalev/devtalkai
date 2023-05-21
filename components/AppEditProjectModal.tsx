@@ -10,49 +10,69 @@ import {
   Textarea,
   ButtonProps,
 } from "@mantine/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDisclosure } from "@mantine/hooks";
 import useMatchesMediaQuery from "../hooks/useMatchesMediaQuery";
 import { joiResolver, useForm } from "@mantine/form";
 import { projectSchema } from "../types/joiSchemas";
 import { showNotification } from "@mantine/notifications";
 import api from "../hooks/api.client";
+import { IconEdit } from "@tabler/icons-react";
+import { Project } from "@prisma/client";
 
 type SelectItemType = { value: string; label: string };
 
 type AppAddProjectModalProps = {
-  onProjectAdded: () => void;
+  onProjectUpdated: () => void;
+  project: Project;
   buttonProps?: ButtonProps;
 };
 
-function AppAddProjectModal({
-  onProjectAdded,
+function getSelectItem(list: string[]): SelectItemType[] {
+  return list.map((item) => ({ label: item, value: item }));
+}
+
+function AppEditProjectModal({
+  onProjectUpdated,
+  project,
   buttonProps,
 }: AppAddProjectModalProps) {
   const [opened, { open, close }] = useDisclosure(false);
   const { ltExtraSmall } = useMatchesMediaQuery();
 
+  const currentObjectives = (project.objectives as string[]) || [];
+  const currentTechnicalStack = (project.technicalStack as string[]) || [];
+  const currentIntegrations = (project.integrations as string[]) || [];
+  const currentSecurityConsiderations =
+    (project.securityConsiderations as string[]) || [];
+
   const form = useForm({
     validate: joiResolver(projectSchema),
     initialValues: {
-      label: "",
-      description: "",
-      objectives: [],
-      technicalStack: [],
-      timeConstraints: "",
-      integrations: [],
-      securityConsiderations: [],
-      documentationLink: "",
+      label: project.label,
+      description: project.description,
+      objectives: currentObjectives,
+      technicalStack: currentTechnicalStack,
+      timeConstraints: project.timeConstraints,
+      integrations: currentIntegrations,
+      securityConsiderations: currentSecurityConsiderations,
+      documentationLink: project.documentationLink,
     },
     validateInputOnChange: true,
   });
 
-  const [objectives, setObjectives] = useState<SelectItemType[]>([]);
-  const [technicalStack, setTechnicalStack] = useState<SelectItemType[]>([]);
-  const [integrations, setIntegrations] = useState<SelectItemType[]>([]);
+  const [objectives, setObjectives] = useState<SelectItemType[]>(
+    getSelectItem(currentObjectives)
+  );
+  const [technicalStack, setTechnicalStack] = useState<SelectItemType[]>(
+    getSelectItem(currentTechnicalStack)
+  );
+  const [integrations, setIntegrations] = useState<SelectItemType[]>(
+    getSelectItem(currentIntegrations)
+  );
   const [securityConsiderations, setSecurityConsiderations] = useState<
     SelectItemType[]
-  >([]);
+  >(getSelectItem(currentSecurityConsiderations));
   const [timeConstraints, setTimeConstraints] = useState([
     "Under 1 week",
     "1 - 2 weeks",
@@ -60,25 +80,43 @@ function AppAddProjectModal({
     "4+ weeks",
   ]);
 
-  const [loadingAddProject, setLoadingAddProject] = useState(false);
-  async function onProjectSubmit(e: any) {
+  // if current time constraint is not in option list, add it.
+  useEffect(() => {
+    if (project.timeConstraints) {
+      if (!timeConstraints.includes(project.timeConstraints)) {
+        setTimeConstraints((prev) =>
+          Array.from(new Set([project.timeConstraints as string, ...prev]))
+        );
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [loadingUpdateProject, setLoadingUpdateProject] = useState(false);
+  async function onProjectUpdate(e: any) {
     e.preventDefault();
+    if (!form.isDirty()) {
+      showNotification({
+        message: "You haven't made changes to the project",
+        color: "yellow",
+      });
+      return;
+    }
     if (form.validate().hasErrors) {
       showNotification({
         color: "red",
         message: "Your inputs have errors, please check and try again",
       });
     }
-    setLoadingAddProject(true);
+    setLoadingUpdateProject(true);
     try {
-      await api.post("/api/project", form.values);
+      await api.patch("/api/project/" + project.id, form.values);
       close();
       showNotification({
-        title: "Project added",
-        message: "Your project was added successfully",
+        title: "Project updated",
+        message: "Your project was updated successfully",
       });
-      form.reset();
-      onProjectAdded();
+      onProjectUpdated();
     } catch (err) {
       const error: any = err;
       if (error.response.data) {
@@ -91,28 +129,33 @@ function AppAddProjectModal({
       showNotification({
         color: "red",
         title: "Please try again later",
-        message: "There was an error adding your project",
+        message: "There was an error updating your project",
       });
     } finally {
-      setLoadingAddProject(false);
+      setLoadingUpdateProject(false);
     }
   }
 
   return (
     <>
-      <Button {...buttonProps} onClick={() => open()}>
-        Add
+      <Button
+        variant="default"
+        rightIcon={<IconEdit size={16} />}
+        {...buttonProps}
+        onClick={() => open()}
+      >
+        Edit
       </Button>
 
       <Modal
         opened={opened}
         onClose={close}
-        title="Add project"
+        title="Update project"
         fullScreen={ltExtraSmall}
         transitionProps={ltExtraSmall ? { transition: "slide-up" } : undefined}
         scrollAreaComponent={ScrollArea.Autosize}
       >
-        <form onSubmit={onProjectSubmit}>
+        <form onSubmit={onProjectUpdate}>
           <TextInput
             required
             name="Project label"
@@ -218,8 +261,8 @@ function AppAddProjectModal({
             {...form.getInputProps("timeConstraints")}
           />
           <Group position="right" mt="sm">
-            <Button type="submit" loading={loadingAddProject}>
-              Add project
+            <Button type="submit" loading={loadingUpdateProject}>
+              Update project
             </Button>
           </Group>
         </form>
@@ -228,4 +271,4 @@ function AppAddProjectModal({
   );
 }
 
-export default AppAddProjectModal;
+export default AppEditProjectModal;

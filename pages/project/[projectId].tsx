@@ -10,17 +10,29 @@ import {
   List,
 } from "@mantine/core";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
-import React from "react";
+import React, { useEffect } from "react";
 import useProject from "../../hooks/useProject";
-import { IconEdit, IconExternalLink } from "@tabler/icons-react";
+import { IconExternalLink } from "@tabler/icons-react";
 import useMatchesMediaQuery from "../../hooks/useMatchesMediaQuery";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import AppEditProjectModal from "../../components/AppEditProjectModal";
 
 function ProjectPage(props: { projectId: number }) {
+  const router = useRouter();
   const { ltExtraSmall } = useMatchesMediaQuery();
   const { project, projectLoading, projectLoadingError, projectRevalidate } =
     useProject(props.projectId);
 
+  // if the loading error is 404 or 403 then redirect
+  useEffect(() => {
+    if (
+      projectLoadingError &&
+      [404, 403].includes(projectLoadingError.response?.status || 500)
+    ) {
+      router.push("/" + projectLoadingError.response?.status);
+    }
+  }, [projectLoadingError, router]);
   function getDateString(date: string): string {
     const dateString = new Intl.DateTimeFormat("default", {
       year: "numeric",
@@ -36,9 +48,12 @@ function ProjectPage(props: { projectId: number }) {
         <Title order={1} my="xl">
           Project
         </Title>
-        <Button variant="default" rightIcon={<IconEdit size={16} />}>
-          Edit
-        </Button>
+        {project && (
+          <AppEditProjectModal
+            onProjectUpdated={projectRevalidate}
+            project={project}
+          />
+        )}
       </Group>
 
       {projectLoading && <AppSingleProjectSkeleton />}
@@ -141,7 +156,7 @@ function ProjectPage(props: { projectId: number }) {
             <Box>
               <Text c="dimmed">Time Constraints</Text>
               <Text style={{ whiteSpace: "pre-wrap" }}>
-                {project.timeConstraints}
+                {project.timeConstraints || "-"}
               </Text>
             </Box>
           </SimpleGrid>
