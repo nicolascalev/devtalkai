@@ -3,7 +3,6 @@ import {
   Title,
   Text,
   Group,
-  Badge,
   Divider,
   Textarea,
   ActionIcon,
@@ -13,7 +12,7 @@ import {
   Popover,
   Transition,
 } from "@mantine/core";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AppPreferencesModal, {
   Preferences,
 } from "../components/AppPreferencesModal";
@@ -49,16 +48,65 @@ function WritingPage() {
   const [items, setItems] = useState<OutputListItemType[]>([]);
 
   const [loadingSendPrompt, setLoadingSendPrompt] = useState(false);
-  async function submitPrompt() {
-    if (!preferences || !preferences.project) {
-      showNotification({
-        color: "yellow",
-        title: "You need to select a project",
-        message: "Go to Preferences > Project",
-      });
-      return;
+
+  useEffect(() => {
+    const lastItem = items.at(-1);
+    async function submitPrompt() {
+      if (!preferences || !preferences.project) {
+        showNotification({
+          color: "yellow",
+          title: "You need to select a project",
+          message: "Go to Preferences > Project",
+        });
+        return;
+      }
+      setLoadingSendPrompt(true);
+      scrollIntoView();
+      try {
+        const fixedItems: ChatCompletionRequestMessage[] = items
+          .map((item) => ({
+            role: item.role,
+            content: item.content,
+          }))
+          .slice(0, -1);
+        const data: PromptResonseType = await api
+          .post("/api/prompt", {
+            history: fixedItems,
+            prompt: lastItem?.content,
+            projectId: preferences.project.value,
+            voice: preferences.voice,
+            mark: preferences.mark,
+          })
+          .then((res) => res.data);
+        setItems((prev) => [
+          ...prev,
+          {
+            role: "assistant",
+            content: data.output.body,
+            output: data.output,
+          },
+        ]);
+        scrollIntoView();
+        setPrompt("");
+      } catch (err) {
+        setItems((prev) => prev.slice(0, -1));
+        showNotification({
+          color: "red",
+          title: "Please try again",
+          message: "There was an error getting a response",
+        });
+        console.log(err);
+      } finally {
+        setLoadingSendPrompt(false);
+      }
     }
-    setLoadingSendPrompt(true);
+    if (lastItem && lastItem.role === "user") {
+      submitPrompt();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items]);
+
+  function addItem() {
     setItems((prev) => [
       ...prev,
       {
@@ -66,46 +114,14 @@ function WritingPage() {
         content: prompt,
       },
     ]);
-    scrollIntoView();
-    try {
-      const fixedItems: ChatCompletionRequestMessage[] = items.map((item) => ({
-        role: item.role,
-        content: item.content,
-      }));
-      const data: PromptResonseType = await api
-        .post("/api/prompt", {
-          history: fixedItems,
-          prompt,
-          projectId: preferences.project.value,
-          voice: preferences.voice,
-          mark: preferences.mark,
-        })
-        .then((res) => res.data);
-      setItems((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: data.output.body,
-          output: data.output,
-        },
-      ]);
-      scrollIntoView();
-      setPrompt("");
-    } catch (err) {
-      setItems((prev) => prev.slice(0, -1));
-      showNotification({
-        color: "red",
-        title: "Please try again",
-        message: "There was an error getting a response",
-      });
-      console.log(err);
-    } finally {
-      setLoadingSendPrompt(false);
-    }
   }
 
   const showRegenerateButton =
     items.at(-1) !== undefined && items.at(-1)?.role === "assistant";
+
+  function onClickRegenerate() {
+    setItems((prev) => prev.slice(0, -1));
+  }
 
   return (
     <Container size="md" h="100%" p={0}>
@@ -148,20 +164,23 @@ function WritingPage() {
         >
           {(styles) => (
             <Button
-            variant="default"
-            style={{
-              ...styles,
-              position: "absolute",
-              left: "50%",
-              top: "-36px",
-              transform: "translateY(-50%) translateX(-50%)",
-            }}
-            rightIcon={<IconRefresh size={16} />}
-          >
-            Regenerate
-          </Button>
+              variant="default"
+              style={{
+                ...styles,
+                position: "absolute",
+                left: "50%",
+                top: "-36px",
+                transform: "translateY(-50%) translateX(-50%)",
+              }}
+              rightIcon={<IconRefresh size={16} />}
+              onClick={() => onClickRegenerate()}
+            >
+              Regenerate
+            </Button>
           )}
         </Transition>
+        {/* IMPORTANT: this works, sometimes it goes under navbar if you resize the window, 
+        but the width is set on page load so that's not an issue */}
         <Container size="md" p={0}>
           <Group noWrap align="top" pb="md" spacing="xs">
             <Textarea
@@ -178,9 +197,9 @@ function WritingPage() {
               <ActionIcon
                 color="primary"
                 variant="filled"
-                disabled={prompt === ""}
+                disabled={prompt === "" && !loadingSendPrompt}
                 loading={loadingSendPrompt}
-                onClick={() => submitPrompt()}
+                onClick={() => addItem()}
               >
                 <IconSend size={16} />
               </ActionIcon>
