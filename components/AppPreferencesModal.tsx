@@ -10,7 +10,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import React, { useEffect, useState } from "react";
-import { useStoreState } from "../store";
+import { useStoreActions, useStoreState } from "../store";
 import useOrganizationProjects from "../hooks/useOrganizationProjects";
 
 export type Preferences = {
@@ -25,25 +25,42 @@ interface AppPreferencesModalType {
 function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
   const [opened, { open, close }] = useDisclosure(false);
   const user = useStoreState((state) => state.user);
+  const storeVoice = useStoreState((state) => state.voice);
+  const storeMark = useStoreState((state) => state.mark);
+  const storeProjectId = useStoreState((state) => state.projectId);
 
   // load the organization projects
   const { projects, projectsLoading, projectsError } = useOrganizationProjects(
     user?.organizationId as number | undefined
   );
   // custom array for select
-  const projectItems =
-    projects?.map((pro) => ({
-      value: pro.id.toString(),
-      label: pro.label,
-    })) || [];
-  const [projectId, setProjectId] = useState<null | string>(null);
-  // when load select the first one
+  const [projectItems, setProjectItems] = useState<SelectItem[]>([]);
   useEffect(() => {
-    if (projects && projects[0]) {
-      setProjectId(projects[0].id.toString());
+    if (projects) {
+      setProjectItems(
+        projects.map((pro) => ({
+          value: pro.id.toString(),
+          label: pro.label,
+        }))
+      );
     }
   }, [projects]);
 
+  const [projectId, setProjectId] = useState<null | string>(
+    storeProjectId || null
+  );
+  // when load projects select the first one if there isnt one in store
+  useEffect(() => {
+    if (projects && projects[0]) {
+      if (storeProjectId) {
+        setProjectId(storeProjectId);
+      } else {
+        setProjectId(projects[0].id.toString());
+      }
+    }
+  }, [projects, storeProjectId]);
+
+  // use organization roles for voice or add your own
   const currentRoles = (user?.organization?.roles as string[]) || [
     "Developer",
     "QA Engineer",
@@ -60,19 +77,51 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
   const [voice, setVoice] = useState<string>(currentRoles[0]);
   const [mark, setMark] = useState("Issue");
 
+  function getSelectedProject(projectIdParam: string | null) {
+    if (!projectIdParam) return undefined;
+    const selectedProject = projectItems.find(
+      (item) => item.value === projectIdParam
+    );
+    if (!selectedProject) return undefined;
+    return {
+      value: Number(selectedProject.value),
+      label: selectedProject.label as string,
+    };
+  }
+
+  // when preferences change, emit onPreferencesChange()
   useEffect(() => {
-    const selectedProject = projectId
-      ? projectItems.find((item) => item.value === projectId)
-      : undefined;
+    const selectedProject = getSelectedProject(projectId);
     onPreferencesChange({
       voice,
       mark,
-      project: selectedProject
-        ? { value: Number(selectedProject.value), label: selectedProject.label }
-        : undefined,
+      project: selectedProject,
     });
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [voice, mark, projectId]);
+
+  // store preferences in store
+  const storeSetVoice = useStoreActions((actions) => actions.setVoice);
+  const storeSetMark = useStoreActions((actions) => actions.setMark);
+  const storeSetProjectId = useStoreActions((actions) => actions.setProjectId);
+  useEffect(() => {
+    storeSetVoice(voice);
+    storeSetMark(mark);
+    storeSetProjectId(projectId || "");
+  }, [voice, mark, projectId, storeSetVoice, storeSetMark, storeSetProjectId]);
+
+  // we dont set projectId from store here because there's another useEffect
+  // setting the project
+  useEffect(() => {
+    if (storeVoice) {
+      setVoice(storeVoice);
+    }
+    if (storeMark) {
+      setMark(storeMark);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>
