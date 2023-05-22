@@ -15,7 +15,6 @@ import { Notifications } from "@mantine/notifications";
 import { ModalsProvider } from "@mantine/modals";
 import AppNavbar from "../components/ui/AppNavbar";
 import AppHeader from "../components/ui/AppHeader";
-import AppFooter from "../components/ui/AppFooter";
 import { StoreProvider, useStoreRehydrated } from "easy-peasy";
 import store from "../store";
 import AppUserLoading from "../components/ui/AppUserLoading";
@@ -112,7 +111,6 @@ export default function App(props: AppProps) {
                         toggleColorScheme={toggleColorScheme}
                       />
                     }
-                    footer={<AppFooter />}
                     styles={{
                       main: {
                         position: "relative",
