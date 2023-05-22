@@ -25,7 +25,7 @@ function AppAllowedEmailsModal({
   onRemoveMember,
 }: {
   count: number | null | undefined;
-  onRemoveMember: () => void,
+  onRemoveMember: () => void;
 }) {
   const user = useStoreState((state) => state.user);
   const [opened, { open, close }] = useDisclosure(false);
@@ -75,8 +75,10 @@ function AppAllowedEmailsModal({
   const [removeOrganizationMemberLoading, setRemoveOrganizationMemberLoading] =
     useState(false);
 
+  const [removingEmail, setRemovingEmail] = useState("");
   async function removeOrganizationMember(email: string) {
     setRemoveOrganizationMemberLoading(true);
+    setRemovingEmail(email);
     try {
       await api.delete(`/api/organization/${user!.adminOf!.id}/members`, {
         data: {
@@ -96,6 +98,7 @@ function AppAllowedEmailsModal({
         message: "This member could not be removed",
       });
     } finally {
+      setRemovingEmail("");
       setRemoveOrganizationMemberLoading(false);
     }
   }
@@ -196,7 +199,9 @@ function AppAllowedEmailsModal({
               <ActionIcon
                 disabled={inv.email === user.email}
                 onClick={() => removeOrganizationMember(inv.email)}
-                loading={removeOrganizationMemberLoading}
+                loading={
+                  removeOrganizationMemberLoading && inv.email === removingEmail
+                }
               >
                 <IconUserX size={16} />
               </ActionIcon>
