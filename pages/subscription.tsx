@@ -25,11 +25,12 @@ import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useRouter } from "next/router";
 
 if (
-  !process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID ||
+  !process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID_LIGHT ||
+  !process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID_DARK ||
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 ) {
   throw new Error(
-    "NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID and NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY env variables are required"
+    "NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID_LIGHT, NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID_DARK and NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY env variables are required"
   );
 }
 
@@ -153,7 +154,7 @@ function SubscriptionPage() {
             <>
               <stripe-pricing-table
                 pricing-table-id={
-                  process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID
+                  process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID_DARK
                 }
                 publishable-key={process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
                 client-reference-id={user.id}
@@ -169,7 +170,9 @@ function SubscriptionPage() {
             </>
           ) : (
             <stripe-pricing-table
-              pricing-table-id={process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID}
+              pricing-table-id={
+                process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID_LIGHT
+              }
               publishable-key={process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
               client-reference-id={user.id}
               customer-email={user.email}
