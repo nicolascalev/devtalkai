@@ -128,9 +128,9 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
       return  "There was an error loading the projects"
     }
     if (projects && projects.length === 0) {
-      return ""
+      return "You need to add a project Organization > Add Project"
     }
-    return "You need to add a project Organization > Add Project"
+    return ""
   }
 
   return (

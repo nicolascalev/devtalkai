@@ -32,6 +32,7 @@ import { ChatCompletionRequestMessage } from "openai/dist/api";
 import Link from "next/link";
 import { useStoreActions, useStoreState } from "../store";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+import AppAddOrganizationModal from "../components/AppAddOrganizationModal";
 
 type PromptResonseType = {
   output: Output;
@@ -39,6 +40,7 @@ type PromptResonseType = {
 };
 
 function WritingPage() {
+  const user = useStoreState((state) => state.user);
   const theme = useMantineTheme();
   const isDark = theme.colorScheme === "dark";
   const { ref: inputRef, height } = useElementSize();
@@ -140,110 +142,135 @@ function WritingPage() {
 
   return (
     <Container size="md" h="100%" p={0}>
-      <div>
-        <Group noWrap align="center" position="apart">
+      {!user!.organization ? (
+        <div>
           <Title order={1} my="xl">
             Writing
           </Title>
-          <AppPreferencesModal onPreferencesChange={onPreferencesChange} />
-        </Group>
-        {preferences && <AppPreferences preferences={preferences} />}
-        <Divider my="md" />
-      </div>
-      <AppOutputList items={items} tokens={tokens} bottomRef={targetRef} />
+          <Card withBorder>
+            <Text fw={500}>You are not part of an organization yet</Text>
+            <Text c="dimmed">
+              You can go to your profile and accept an invite, or add your own
+              organization
+            </Text>
+            <Group align="center" mt="sm" spacing="xs">
+              <Link href="/profile" passHref>
+                <Button variant="default" component="a">
+                  Invites
+                </Button>
+              </Link>
+              <AppAddOrganizationModal />
+            </Group>
+          </Card>
+        </div>
+      ) : (
+        <>
+          <div>
+            <Group noWrap align="center" position="apart">
+              <Title order={1} my="xl">
+                Writing
+              </Title>
+              <AppPreferencesModal onPreferencesChange={onPreferencesChange} />
+            </Group>
+            {preferences && <AppPreferences preferences={preferences} />}
+            <Divider my="md" />
+          </div>
+          <AppOutputList items={items} tokens={tokens} bottomRef={targetRef} />
 
-      <div style={{ height: height + 16 }}></div>
-      <Card
-        ref={inputRef}
-        bg={isDark ? undefined : "gray.0"}
-        p="sm"
-        withBorder
-        radius={0}
-        style={{
-          overflow: "visible",
-          position: "fixed",
-          right: 1,
-          bottom: 0,
-          width: "calc(100vw - var(--mantine-navbar-width))",
-        }}
-      >
-        <Group
-          w="100%"
-          position="center"
-          style={{
-            position: "absolute",
-            top: "-48px",
-          }}
-        >
-          <Group spacing="xs">
-            <Transition
-              mounted={showRegenerateButton}
-              transition="slide-up"
-              duration={400}
-              timingFunction="ease"
+          <div style={{ height: height + 16 }}></div>
+          <Card
+            ref={inputRef}
+            bg={isDark ? undefined : "gray.0"}
+            p="sm"
+            withBorder
+            radius={0}
+            style={{
+              overflow: "visible",
+              position: "fixed",
+              right: 1,
+              bottom: 0,
+              width: "calc(100vw - var(--mantine-navbar-width))",
+            }}
+          >
+            <Group
+              w="100%"
+              position="center"
+              style={{
+                position: "absolute",
+                top: "-48px",
+              }}
             >
-              {(styles) => (
-                <Button
-                  variant="default"
-                  style={{ ...styles, boxShadow: theme.shadows.sm }}
-                  rightIcon={<IconRefresh size={16} />}
-                  onClick={() => onClickRegenerate()}
+              <Group spacing="xs">
+                <Transition
+                  mounted={showRegenerateButton}
+                  transition="slide-up"
+                  duration={400}
+                  timingFunction="ease"
                 >
-                  Regenerate
-                </Button>
-              )}
-            </Transition>
-            <Transition
-              mounted={items.length > 0 && !loadingSendPrompt}
-              transition="slide-up"
-              duration={400}
-              timingFunction="ease"
-            >
-              {(styles) => (
-                <Button
-                  variant="default"
-                  rightIcon={
-                    <IconTrash size={16} color={theme.colors.red[6]} />
-                  }
-                  style={{ ...styles, boxShadow: theme.shadows.sm }}
-                  onClick={() => setItems([])}
+                  {(styles) => (
+                    <Button
+                      variant="default"
+                      style={{ ...styles, boxShadow: theme.shadows.sm }}
+                      rightIcon={<IconRefresh size={16} />}
+                      onClick={() => onClickRegenerate()}
+                    >
+                      Regenerate
+                    </Button>
+                  )}
+                </Transition>
+                <Transition
+                  mounted={items.length > 0 && !loadingSendPrompt}
+                  transition="slide-up"
+                  duration={400}
+                  timingFunction="ease"
                 >
-                  Reset
-                </Button>
-              )}
-            </Transition>
-          </Group>
-        </Group>
-        {/* IMPORTANT: this works, sometimes it goes under navbar if you resize the window, 
-        but the width is set on page load so that's not an issue */}
-        <Container size="md" p={0}>
-          <Group noWrap align="top" pb="md" spacing="xs">
-            <Textarea
-              style={{ flexGrow: 1 }}
-              minRows={1}
-              maxRows={2}
-              autosize
-              placeholder="Type your prompt..."
-              value={prompt}
-              onChange={(event) => setPrompt(event.currentTarget.value)}
-              disabled={loadingSendPrompt || tokens === 4096}
-            />
-            <div>
-              <ActionIcon
-                color="primary"
-                variant="filled"
-                disabled={
-                  (prompt === "" && !loadingSendPrompt) || tokens === 4096
-                }
-                loading={loadingSendPrompt}
-                onClick={() => addItem()}
-              >
-                <IconSend size={16} />
-              </ActionIcon>
-            </div>
-          </Group>
-        </Container>
-      </Card>
+                  {(styles) => (
+                    <Button
+                      variant="default"
+                      rightIcon={
+                        <IconTrash size={16} color={theme.colors.red[6]} />
+                      }
+                      style={{ ...styles, boxShadow: theme.shadows.sm }}
+                      onClick={() => setItems([])}
+                    >
+                      Reset
+                    </Button>
+                  )}
+                </Transition>
+              </Group>
+            </Group>
+            {/* IMPORTANT: this works, sometimes it goes under navbar if you resize the window, 
+            but the width is set on page load so that's not an issue */}
+            <Container size="md" p={0}>
+              <Group noWrap align="top" pb="md" spacing="xs">
+                <Textarea
+                  style={{ flexGrow: 1 }}
+                  minRows={1}
+                  maxRows={2}
+                  autosize
+                  placeholder="Type your prompt..."
+                  value={prompt}
+                  onChange={(event) => setPrompt(event.currentTarget.value)}
+                  disabled={loadingSendPrompt || tokens === 4096}
+                />
+                <div>
+                  <ActionIcon
+                    color="primary"
+                    variant="filled"
+                    disabled={
+                      (prompt === "" && !loadingSendPrompt) || tokens === 4096
+                    }
+                    loading={loadingSendPrompt}
+                    onClick={() => addItem()}
+                  >
+                    <IconSend size={16} />
+                  </ActionIcon>
+                </div>
+              </Group>
+            </Container>
+          </Card>
+        </>
+      )}
     </Container>
   );
 }
