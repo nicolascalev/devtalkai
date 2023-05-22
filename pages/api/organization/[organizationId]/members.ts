@@ -4,6 +4,11 @@ import prisma from "../../../../prisma/client";
 import { UserWithNestedProperties } from "../../../../types/types";
 import { inviteSchema } from "../../../../types/joiSchemas";
 import paginator from "prisma-paginate";
+import sendInviteEmail from "../../../../utils/sendInviteEmail";
+
+if (!process.env.NEXT_PUBLIC_BASE_URL) {
+  throw new Error("NEXT_PUBLIC_BASE_URL env variable is required");
+}
 
 export default withApiAuthRequired(async function organizationMembersHandler(
   req: NextApiRequest,
@@ -89,6 +94,18 @@ export default withApiAuthRequired(async function organizationMembersHandler(
           organization: { connect: { id: Number(req.query.organizationId) } },
         },
       });
+
+      // try to send invite email but if it fails send a good response anyways
+      try {
+        await sendInviteEmail({
+          baseUrl: process.env.NEXT_PUBLIC_BASE_URL!,
+          organization: user.adminOf!,
+          user: user,
+          to: req.body.email,
+        });
+      } catch (err) {
+        console.error("[EMAIL ERROR] Failed to send email invite");
+      }
 
       return res.status(200).json(invite);
     } catch (err) {
