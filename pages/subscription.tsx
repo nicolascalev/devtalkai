@@ -24,6 +24,15 @@ import { useProfile } from "../hooks/useProfile";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useRouter } from "next/router";
 
+if (
+  !process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID ||
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+) {
+  throw new Error(
+    "NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID and NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY env variables are required"
+  );
+}
+
 export const getServerSideProps = withPageAuthRequired();
 declare global {
   namespace JSX {
@@ -143,8 +152,10 @@ function SubscriptionPage() {
           {isDark ? (
             <>
               <stripe-pricing-table
-                pricing-table-id="prctbl_1N7TYABQSgJN6JQglw4mYIe1"
-                publishable-key="pk_test_51N7PnyBQSgJN6JQgSYvB88KSyjpiOnfjju3PjWCp6gYw1YM1Z87vvdN1AR2YVAg3Qouyoej1BhYAfEF4c7JEUx4D00WBndmp8O"
+                pricing-table-id={
+                  process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID
+                }
+                publishable-key={process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
                 client-reference-id={user.id}
                 customer-email={user.email}
               ></stripe-pricing-table>
@@ -158,8 +169,8 @@ function SubscriptionPage() {
             </>
           ) : (
             <stripe-pricing-table
-              pricing-table-id="prctbl_1N9Au6BQSgJN6JQg7IRaTUx9"
-              publishable-key="pk_test_51N7PnyBQSgJN6JQgSYvB88KSyjpiOnfjju3PjWCp6gYw1YM1Z87vvdN1AR2YVAg3Qouyoej1BhYAfEF4c7JEUx4D00WBndmp8O"
+              pricing-table-id={process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID}
+              publishable-key={process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY}
               client-reference-id={user.id}
               customer-email={user.email}
             ></stripe-pricing-table>
