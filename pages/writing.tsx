@@ -65,14 +65,7 @@ function WritingPage() {
   useEffect(() => {
     const lastItem = items.at(-1);
     async function submitPrompt() {
-      if (!preferences || !preferences.project) {
-        showNotification({
-          color: "yellow",
-          title: "You need to select a project",
-          message: "Go to Preferences > Project",
-        });
-        return;
-      }
+      if (!preferences || !preferences.project) return;
       setLoadingSendPrompt(true);
       scrollIntoView();
       try {
@@ -121,6 +114,14 @@ function WritingPage() {
   }, [items]);
 
   function addItem() {
+    if (!preferences || !preferences.project) {
+      showNotification({
+        color: "yellow",
+        title: "You need to select a project",
+        message: "Go to Preferences > Project",
+      });
+      return;
+    }
     setItems((prev) => [
       ...prev,
       {

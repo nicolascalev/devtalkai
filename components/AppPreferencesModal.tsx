@@ -123,6 +123,16 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  function getProjectsError(): string {
+    if (projectsError) {
+      return  "There was an error loading the projects"
+    }
+    if (projects && projects.length === 0) {
+      return ""
+    }
+    return "You need to add a project Organization > Add Project"
+  }
+
   return (
     <>
       <Button onClick={() => open()} loading={projectsLoading}>
@@ -138,7 +148,7 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
             onChange={setProjectId}
             searchable
             maxDropdownHeight={200}
-            error={projectsError && "There was an error loading the projects"}
+            error={getProjectsError()}
           />
         </Box>
         <Box mt="sm">
