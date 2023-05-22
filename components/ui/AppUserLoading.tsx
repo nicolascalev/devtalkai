@@ -9,13 +9,22 @@ import {
   Button,
   Center,
 } from "@mantine/core";
-import React, { ReactElement, useEffect } from "react";
+import React, { ReactElement, useEffect, useState } from "react";
 import { useStoreActions } from "../../store";
 import { useProfile } from "../../hooks/useProfile";
+import { useRouter } from "next/router";
+
+const PUBLIC_PAGES = [
+  "/subscription/success",
+  "/subscription/cancel",
+  "/404",
+  "/403",
+]
 
 function AppUserLoading({ children }: { children: ReactElement<any, any> }) {
   const theme = useMantineTheme();
   const isDark = theme.colorScheme === "dark";
+  const router = useRouter();
 
   const setUser = useStoreActions((actions) => actions.setUser);
   const { user, userLoading, userLoadingError } = useProfile();
@@ -34,7 +43,15 @@ function AppUserLoading({ children }: { children: ReactElement<any, any> }) {
     }
   }, [userLoadingError]);
 
-  if (userLoading || userLoadingError || !user) {
+  const [isPublicPage, setIsPublicPage] = useState(false);
+  useEffect(() => {
+    if (PUBLIC_PAGES.includes(router.pathname)) {
+      setIsPublicPage(true);
+    }
+    console.log(router.pathname)
+  }, [router.pathname])
+
+  if (!isPublicPage && (userLoading || userLoadingError || !user)) {
     return (
       <Modal
         opened={true}

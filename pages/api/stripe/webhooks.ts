@@ -3,6 +3,7 @@ import getRawBody from "raw-body";
 import prisma from "../../../prisma/client";
 import stripe from "../../../utils/stripe.client";
 import Stripe from "stripe";
+import { Prisma } from "@prisma/client";
 
 export const config = {
   api: {
@@ -42,13 +43,62 @@ export default async function stripeWebhookHandler(
     case "checkout.session.completed":
       subscription = event.data.object;
 
-      // TODO: if there is no reference, it was a guest, so handle it
+      const costumerEmail = subscription.customer_details.email;
+
+      let userId: number | null = null;
+      // if the subscription was created and no id was provided that means it was a guest
       if (!subscription.client_reference_id) {
-        break;
+        // first try to use a user if the email is taken
+        const foundUser = await prisma.user.findUnique({
+          where: { email: costumerEmail },
+        });
+        if (foundUser) {
+          userId = foundUser!.id;
+        } else {
+          // if the email is not taken we need to onboard the admin
+          // first we create an organization wtih an invite and an admin
+          const createdOrganization =
+            await prisma.organization.create<Prisma.OrganizationCreateArgs>({
+              data: {
+                name: costumerEmail + " organization",
+                about: "TBD",
+                domainIndustry: "TBD",
+                domainLiteracy: "TBD",
+                admin: {
+                  create: {
+                    email: costumerEmail,
+                    auth0sub: "pending_signup_" + Date.now().toString(),
+                    fullName: costumerEmail,
+                  },
+                },
+                invites: {
+                  create: {
+                    email: costumerEmail,
+                  },
+                },
+              },
+              include: {
+                admin: true,
+              },
+            });
+
+          // once the admin is created we need to add it as a member to the organization
+          await prisma.organization.update({
+            where: { id: createdOrganization.id },
+            data: {
+              members: {
+                connect: { id: createdOrganization.adminId },
+              },
+            },
+          });
+          userId = createdOrganization.adminId;
+        }
+      } else {
+        userId = Number(subscription.client_reference_id);
       }
 
       const user = await prisma.user.update({
-        where: { id: Number(subscription.client_reference_id) },
+        where: { id: userId as number },
         data: { stripeCustomerId: subscription.customer },
       });
       const fullSubscription = await stripe.subscriptions.retrieve(

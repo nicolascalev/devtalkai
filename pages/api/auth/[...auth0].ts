@@ -1,7 +1,14 @@
-import { getSession, handleAuth, handleCallback, handleProfile, Session } from "@auth0/nextjs-auth0";
+import {
+  getSession,
+  handleAuth,
+  handleCallback,
+  handleProfile,
+  Session,
+} from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
 import User from "../../../prisma/models/User";
 import { Prisma } from "@prisma/client";
+import prisma from "../../../prisma/client";
 
 const afterCallback = async (
   req: NextApiRequest,
@@ -10,7 +17,16 @@ const afterCallback = async (
 ) => {
   const auth0User: any = session.user;
   try {
-    let user: any = await User.findByAuth0Sub(auth0User.sub);
+    // try to find user by email
+    let user: any = await prisma.user.findUnique({
+      where: { email: auth0User.email },
+      include: {
+        stripeSub: true,
+        organization: true,
+        adminOf: true,
+      },
+    });
+    // if not found create it
     if (!user) {
       const newUser: Prisma.UserCreateInput = {
         fullName: auth0User.name,
@@ -18,6 +34,17 @@ const afterCallback = async (
         email: auth0User.email,
       };
       user = await User.create(newUser);
+    } else {
+      //  if found, make sure the auht0 sub is up to date
+      user = await prisma.user.update({
+        where: { email: user.email },
+        data: { auth0sub: auth0User.sub },
+        include: {
+          stripeSub: true,
+          organization: true,
+          adminOf: true,
+        },
+      });
     }
     session.user = user;
     return session;
