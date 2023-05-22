@@ -1,9 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import openai from "../../utils/openai.client";
-import {
-  ChatCompletionRequestMessage,
-} from "openai/dist/api";
+import { ChatCompletionRequestMessage } from "openai/dist/api";
 import prisma from "../../prisma/client";
 import { UserWithNestedProperties } from "../../types/types";
 import { getPrompt, getPromptContext } from "../../utils/getPrompt";
@@ -36,9 +34,19 @@ export default withApiAuthRequired(async function promptHandler(
     const body: PromptBody = req.body;
 
     try {
+      // think about how to optimize this so we don't hve to populate org > admin > sub
+      // because if we do that in every message it may take too long
       const project = await prisma.project.findUnique({
         where: { id: body.projectId },
-        include: { organization: true },
+        include: {
+          organization: {
+            include: {
+              admin: {
+                include: { stripeSub: true },
+              },
+            },
+          },
+        },
       });
 
       if (!project) {
@@ -51,6 +59,12 @@ export default withApiAuthRequired(async function promptHandler(
           .send(
             "The project selected does not belong to the user's organization"
           );
+      }
+
+      if (project.organization.admin.stripeSub?.stripeSubStatus !== "active") {
+        return res
+          .status(402)
+          .send("The organization does not have an active subscription");
       }
 
       const context = getPromptContext({ project, user });
