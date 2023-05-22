@@ -24,6 +24,8 @@ model User {
   organization         Organization? @relation("OrganizationMembers", fields: [organizationId], references: [id])
   outputs              Output[]
   adminOf              Organization? @relation("UserAdminOfOrganization")
+
+  @@map("user")
 }
 
 model Subscription {
@@ -35,6 +37,8 @@ model Subscription {
   stripeSubProductName String
   stripeSubStatus      String
   stripeSubQuantity    Int
+
+  @@map("subscription")
 }
 
 model Organization {
@@ -52,6 +56,8 @@ model Organization {
   adminId              Int       @unique
   admin                User      @relation("UserAdminOfOrganization", fields: [adminId], references: [id])
   projects             Project[]
+
+  @@map("organization")
 }
 
 model Project {
@@ -68,6 +74,8 @@ model Project {
   outputs                Output[]
   organizationId         Int
   organization           Organization @relation(fields: [organizationId], references: [id])
+
+  @@map("project")
 }
 
 model Invite {
@@ -77,6 +85,7 @@ model Invite {
   organization   Organization @relation(fields: [organizationId], references: [id])
 
   @@index([organizationId, email])
+  @@map("invite")
 }
 
 model Output {
@@ -92,4 +101,6 @@ model Output {
   markedAs       String
   voice          String
   userBookmarked Boolean      @default(false)
+
+  @@map("output")
 }
