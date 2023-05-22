@@ -22,6 +22,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { useProfile } from "../hooks/useProfile";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+import { useRouter } from "next/router";
 
 export const getServerSideProps = withPageAuthRequired();
 declare global {
@@ -45,7 +46,14 @@ function SubscriptionPage() {
     userRevalidate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  const router = useRouter();
   if (!user) return null;
+
+  if (!user) return null;
+  if (!user.adminOf) {
+    router.push("/403");
+    return null;
+  }
 
   return (
     <div style={{ paddingBottom: "50px" }}>

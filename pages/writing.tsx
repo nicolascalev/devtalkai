@@ -31,6 +31,7 @@ import { OutputListItemType } from "../types/types";
 import { ChatCompletionRequestMessage } from "openai/dist/api";
 import Link from "next/link";
 import { useStoreActions, useStoreState } from "../store";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 
 type PromptResonseType = {
   output: Output;
@@ -245,6 +246,8 @@ function WritingPage() {
     </Container>
   );
 }
+
+export const getServerSideProps = withPageAuthRequired();
 
 export default WritingPage;
 

@@ -18,6 +18,9 @@ import Link from "next/link";
 import useOutputs from "../hooks/useOutputs";
 import { useState } from "react";
 import AppOutputCard from "../components/AppOutputCard";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+
+export const getServerSideProps = withPageAuthRequired();
 
 export default function BookmarksPage() {
   const [page, setPage] = useState(1);

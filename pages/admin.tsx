@@ -24,8 +24,6 @@ export const getServerSideProps = withPageAuthRequired();
 
 function AdminPage() {
   const user = useStoreState((state) => state.user);
-  const theme = useMantineTheme();
-  const isDark = theme.colorScheme === "dark";
   const { count, countRevalidate } = useOrganizationCount(user?.adminOf?.id);
 
   const {
@@ -39,7 +37,7 @@ function AdminPage() {
   const router = useRouter();
   if (!user) return null;
   if (!user.adminOf) {
-    router.push("/401");
+    router.push("/403");
     return null;
   }
 
