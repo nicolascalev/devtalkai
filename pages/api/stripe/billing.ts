@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import stripe from "../../../utils/stripe.client";
+import prisma from "../../../prisma/client";
 import { withApiAuthRequired, getSession } from "@auth0/nextjs-auth0";
 import { UserWithNestedProperties } from "../../../types/types";
 
