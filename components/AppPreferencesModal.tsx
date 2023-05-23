@@ -61,12 +61,18 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
   }, [projects, storeProjectId]);
 
   // use organization roles for voice or add your own
-  const currentRoles = (user?.organization?.roles as string[]) || [
-    "Developer",
-    "QA Engineer",
-    "Designer",
-    "Marketing Team",
-  ];
+  const organizationRoles = user?.organization?.roles as string[];
+  const currentRoles =
+    organizationRoles.length === 0
+      ? [
+          "Developer",
+          "QA Engineer",
+          "Designer",
+          "Marketing",
+          "Sales",
+          "Product Design",
+        ]
+      : organizationRoles;
   const fixedCurrentRoles = currentRoles.map((role: string) => ({
     value: role,
     label: role,
@@ -125,12 +131,12 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
 
   function getProjectsError(): string {
     if (projectsError) {
-      return  "There was an error loading the projects"
+      return "There was an error loading the projects";
     }
     if (projects && projects.length === 0) {
-      return "You need to add a project Organization > Add Project"
+      return "You need to add a project Organization > Add Project";
     }
-    return ""
+    return "";
   }
 
   return (
@@ -147,6 +153,7 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
             value={projectId}
             onChange={setProjectId}
             searchable
+            clearable
             maxDropdownHeight={200}
             error={getProjectsError()}
           />
@@ -155,7 +162,6 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
           <Select
             value={voice}
             onChange={(value: string) => setVoice(value)}
-            dropdownPosition="bottom"
             maxDropdownHeight={200}
             label="Voice"
             placeholder="Select voice"
