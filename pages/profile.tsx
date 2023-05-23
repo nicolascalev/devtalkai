@@ -35,6 +35,7 @@ import AppInviteCard, {
 } from "../components/AppInviteCard";
 import { useProfile } from "../hooks/useProfile";
 import AppAddOrganizationModal from "../components/AppAddOrganizationModal";
+import AppTitle from "../components/ui/AppTitle";
 
 export const getServerSideProps = withPageAuthRequired();
 
@@ -54,9 +55,9 @@ function ProfilePage() {
 
   return (
     <Container size="md" p={0}>
-      <Title order={1} my="xl">
+      <AppTitle order={1} my="xl">
         Profile
-      </Title>
+      </AppTitle>
       <SimpleGrid
         cols={1}
         breakpoints={[{ minWidth: "sm", cols: 2, spacing: "xl" }]}

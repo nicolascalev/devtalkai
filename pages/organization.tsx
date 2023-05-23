@@ -29,6 +29,7 @@ import AppProjectCard from "../components/AppProjectCard";
 import AppAddProjectModal from "../components/AppAddProjectModal";
 import useOrganizationSubscription from "../hooks/useOrganizationSubscription";
 import Link from "next/link";
+import AppTitle from "../components/ui/AppTitle";
 export const getServerSideProps = withPageAuthRequired();
 
 function OrganizationPage() {
@@ -44,9 +45,9 @@ function OrganizationPage() {
 
   return (
     <Container size="md" p={0}>
-      <Title order={1} my="xl">
+      <AppTitle order={1} my="xl">
         Organization
-      </Title>
+      </AppTitle>
       {!user!.organization ? (
         <Card withBorder>
           <Text fw={500}>You are not part of an organization yet</Text>

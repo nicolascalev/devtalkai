@@ -1,6 +1,5 @@
 import {
   Container,
-  Title,
   Text,
   Group,
   Divider,
@@ -33,6 +32,7 @@ import Link from "next/link";
 import { useStoreActions, useStoreState } from "../store";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import AppAddOrganizationModal from "../components/AppAddOrganizationModal";
+import AppTitle from "../components/ui/AppTitle";
 
 type PromptResonseType = {
   output: Output;
@@ -140,13 +140,15 @@ function WritingPage() {
     setItems((prev) => prev.slice(0, -1));
   }
 
+  if (!user) return null;
+
   return (
     <Container size="md" h="100%" p={0}>
-      {!user!.organization ? (
+      {!user.organization ? (
         <div>
-          <Title order={1} my="xl">
+          <AppTitle order={1} my="xl" >
             Writing
-          </Title>
+          </AppTitle>
           <Card withBorder>
             <Text fw={500}>You are not part of an organization yet</Text>
             <Text c="dimmed">
@@ -167,9 +169,9 @@ function WritingPage() {
         <>
           <div>
             <Group noWrap align="center" position="apart">
-              <Title order={1} my="xl">
+              <AppTitle order={1} my="xl">
                 Writing
-              </Title>
+              </AppTitle>
               <AppPreferencesModal onPreferencesChange={onPreferencesChange} />
             </Group>
             {preferences && <AppPreferences preferences={preferences} />}
@@ -177,7 +179,7 @@ function WritingPage() {
           </div>
           <AppOutputList items={items} tokens={tokens} bottomRef={targetRef} />
 
-          <div style={{ height: height + 16 }}></div>
+          <div style={{ height: height + 50 }}></div>
           <Card
             ref={inputRef}
             bg={isDark ? undefined : "gray.0"}
@@ -242,7 +244,7 @@ function WritingPage() {
             {/* IMPORTANT: this works, sometimes it goes under navbar if you resize the window, 
             but the width is set on page load so that's not an issue */}
             <Container size="md" p={0}>
-              <Group noWrap align="top" pb="md" spacing="xs">
+              <Group noWrap align="top" spacing="xs">
                 <Textarea
                   style={{ flexGrow: 1 }}
                   minRows={1}

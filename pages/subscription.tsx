@@ -23,6 +23,7 @@ import { showNotification } from "@mantine/notifications";
 import { useProfile } from "../hooks/useProfile";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useRouter } from "next/router";
+import AppTitle from "../components/ui/AppTitle";
 
 if (
   !process.env.NEXT_PUBLIC_STRIPE_PRICING_TABLE_ID_LIGHT ||
@@ -68,9 +69,9 @@ function SubscriptionPage() {
   return (
     <div style={{ paddingBottom: "50px" }}>
       <Container size="md" mb="lg" p={0}>
-        <Title order={1} my="xl">
+        <AppTitle order={1} my="xl">
           Subscription
-        </Title>
+        </AppTitle>
         {user.stripeSub && (
           <Box>
             <div>

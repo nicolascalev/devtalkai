@@ -19,6 +19,7 @@ import useOrganizationCount from "../hooks/useOrganizationCount";
 import AppUpdateOrganizationForm from "../components/AppUpdateOrganizationForm";
 import AppUserCard, { AppUserCardSkeleton } from "../components/AppUserCard";
 import useOrganizationMembers from "../hooks/useOrganizationMembers";
+import AppTitle from "../components/ui/AppTitle";
 
 export const getServerSideProps = withPageAuthRequired();
 
@@ -43,9 +44,9 @@ function AdminPage() {
 
   return (
     <Container size="md" p={0}>
-      <Title order={1} my="xl">
+      <AppTitle order={1} my="xl">
         Admin Settings
-      </Title>
+      </AppTitle>
       <Tabs variant="outline" defaultValue="Members">
         <Tabs.List>
           <Tabs.Tab value="Members">Members</Tabs.Tab>

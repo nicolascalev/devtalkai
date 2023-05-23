@@ -17,6 +17,7 @@ import useMatchesMediaQuery from "../../hooks/useMatchesMediaQuery";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import AppEditProjectModal from "../../components/AppEditProjectModal";
+import AppTitle from "../../components/ui/AppTitle";
 
 function ProjectPage(props: { projectId: number }) {
   const router = useRouter();
@@ -45,9 +46,9 @@ function ProjectPage(props: { projectId: number }) {
   return (
     <Container size="md" p={0}>
       <Group noWrap align="center" position="apart">
-        <Title order={1} my="xl">
+        <AppTitle order={1} my="xl">
           Project
-        </Title>
+        </AppTitle>
         {project && (
           <AppEditProjectModal
             onProjectUpdated={projectRevalidate}

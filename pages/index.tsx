@@ -20,6 +20,7 @@ import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import { useState } from "react";
 import useOutputs from "../hooks/useOutputs";
 import AppOutputCard from "../components/AppOutputCard";
+import AppTitle from "../components/ui/AppTitle";
 export const getServerSideProps = withPageAuthRequired();
 
 export default function IndexPage() {
@@ -30,9 +31,9 @@ export default function IndexPage() {
   return (
     <Container size="md" p={0}>
       <Group noWrap align="center" position="apart">
-        <Title order={1} my="xl">
+        <AppTitle order={1} my="xl">
           Outputs
-        </Title>
+        </AppTitle>
         <Link href="/writing" passHref>
           <Button>Create</Button>
         </Link>
