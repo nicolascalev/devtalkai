@@ -179,7 +179,7 @@ function WritingPage() {
           </div>
           <AppOutputList items={items} tokens={tokens} bottomRef={targetRef} />
 
-          <div style={{ height: height + 50 }}></div>
+          <div style={{ height: height + 8 }}></div>
           <Card
             ref={inputRef}
             bg={isDark ? undefined : "gray.0"}

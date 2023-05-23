@@ -9,6 +9,7 @@ import {
   SimpleGrid,
   useMantineTheme,
   Pagination,
+  Card,
 } from "@mantine/core";
 import React, { useState } from "react";
 import AppAllowedEmailsModal from "../components/AppAllowedEmailsModal";
@@ -20,6 +21,7 @@ import AppUpdateOrganizationForm from "../components/AppUpdateOrganizationForm";
 import AppUserCard, { AppUserCardSkeleton } from "../components/AppUserCard";
 import useOrganizationMembers from "../hooks/useOrganizationMembers";
 import AppTitle from "../components/ui/AppTitle";
+import { IconInfoCircle } from "@tabler/icons-react";
 
 export const getServerSideProps = withPageAuthRequired();
 
@@ -60,18 +62,21 @@ function AdminPage() {
         </Tabs.Panel>
 
         <Tabs.Panel value="Members" pt="xs">
-          <Alert mb="md" variant="light" color="gray">
-            <Text fw={500}>Allowed emails in list: {count?.inviteCount}</Text>
-            <Group position="apart" spacing="xs">
-              <Text>Your subscription is based on the allowed-emails list</Text>
-              <Group position="right" style={{ flexGrow: 1 }}>
-                <AppAllowedEmailsModal
-                  count={count?.inviteCount}
-                  onRemoveMember={() => membersRevalidate()}
-                />
-              </Group>
+          <Card mb="md" withBorder>
+            <Group noWrap align="center" spacing={5}>
+              <IconInfoCircle size={16} />
+              <Text fw={500}>Allowed emails in list: {count?.inviteCount}</Text>
             </Group>
-          </Alert>
+            <Text size="sm">
+              Your subscription is based on the allowed-emails list
+            </Text>
+            <Group position="right">
+              <AppAllowedEmailsModal
+                count={count?.inviteCount}
+                onRemoveMember={() => membersRevalidate()}
+              />
+            </Group>
+          </Card>
 
           <Text fw={500}>Members {count?.memberCount}</Text>
           <Text size="sm" c="dimmed" mb="md">

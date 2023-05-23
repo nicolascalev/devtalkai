@@ -131,14 +131,17 @@ function ProfilePage() {
             </Text>
           </Group>
           {user.adminOf && (
-            <Alert
-              title="You are an organization's administrator"
-              variant="light"
-              color="gray"
-              mb="md"
-            >
-              You can not accept invites to join other organizations or leave
-              your current one. If this is an issue please contact support
+            <Card mb="md" withBorder>
+              <Group noWrap align="center" mb="sm" spacing={5}>
+                <IconInfoCircle size={16} />
+                <Text fw={500}>
+                  You are an organization&apos;s administrator
+                </Text>
+              </Group>
+              <Text size="sm">
+                You can not accept invites to join other organizations or leave
+                your current one. If this is an issue please contact support
+              </Text>
               <Group position="right" mt="xs">
                 <Button
                   variant="default"
@@ -148,7 +151,7 @@ function ProfilePage() {
                   Contact support
                 </Button>
               </Group>
-            </Alert>
+            </Card>
           )}
           {invitesLoading && <AppInviteCardSkeleton />}
           {invites?.map((invite) => (
