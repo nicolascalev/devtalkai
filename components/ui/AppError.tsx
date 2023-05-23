@@ -12,7 +12,7 @@ type AppErrorProps = {
 function AppError(props: AppErrorProps) {
   return (
     <Center mih="calc(100vh - 100px)">
-      <Card withBorder w="full">
+      <Card withBorder w="full" maw={450}>
         <Badge variant="dot" color="red">
           {props.status}
         </Badge>
