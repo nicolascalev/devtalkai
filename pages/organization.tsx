@@ -74,11 +74,11 @@ function OrganizationPage() {
               <Text size="xl" fw={500} ta="center" mb="sm">
                 {user.organization.name}
               </Text>
-              <Text>{user.organization.about}</Text>
+              <Text mb="md">{user.organization.about}</Text>
               {user.organization.trainingResourcesUrl && (
                 <>
                   <Card.Section>
-                    <Divider my="md" />
+                    <Divider mb="md" />
                   </Card.Section>
                   <Button
                     fullWidth

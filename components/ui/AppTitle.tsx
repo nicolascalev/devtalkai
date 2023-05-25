@@ -7,7 +7,7 @@ function AppTitle(props: TitleProps) {
 
   if (ltExtraSmall) {
     return (
-      <Text size="xl" fw={500} {...props}>
+      <Text size="xl" fw={600} {...props}>
         {props.children}
       </Text>
     );
