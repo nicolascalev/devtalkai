@@ -49,7 +49,7 @@ function AdminPage() {
       <AppTitle order={1} my="xl">
         Admin Settings
       </AppTitle>
-      <Tabs variant="outline" defaultValue="Members">
+      <Tabs defaultValue="Members">
         <Tabs.List>
           <Tabs.Tab value="Members">Members</Tabs.Tab>
           <Tabs.Tab value="organization">Organization</Tabs.Tab>
