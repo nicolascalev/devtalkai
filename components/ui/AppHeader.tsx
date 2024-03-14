@@ -8,6 +8,7 @@ import {
   Text,
   ActionIcon,
   useMantineTheme,
+  Avatar,
 } from "@mantine/core";
 import Link from "next/link";
 import React from "react";
@@ -25,15 +26,13 @@ function AppHeader({ opened, setOpened, colorScheme, toggleColorScheme }: any) {
     `(min-width: ${theme.breakpoints.lg}px)`
   );
 
-
   return (
     <Header height={60} style={{ display: "flex", justifyContent: "center" }}>
       <Group
         sx={{ height: "100%" }}
         position="apart"
         w="100%"
-        maw={ `calc(100% - ${matchesBiggerThanMedium ? "32px" : "16px"})`
-        }
+        maw={`calc(100% - ${matchesBiggerThanMedium ? "32px" : "16px"})`}
         p={matchesBiggerThanLarge ? 0 : "sm"}
       >
         <Group>
@@ -44,22 +43,9 @@ function AppHeader({ opened, setOpened, colorScheme, toggleColorScheme }: any) {
               size="sm"
             />
           </MediaQuery>
-          <Link href="/" passHref>
-            <Anchor underline={false} c="inherit">
-              <Group align="center" spacing="xs">
-                <Image
-                  radius={0}
-                  src="/favicon.svg"
-                  height="25px"
-                  width="25px"
-                  alt="devtalk ai logo"
-                />
-                <Text fw={600} size="lg" c={isDark ? "white" : "dark"}>
-                  devtalk ai
-                </Text>
-              </Group>
-            </Anchor>
-          </Link>
+          <Avatar color="lime" component={Link} href="/" radius="xl">
+            DT
+          </Avatar>
         </Group>
 
         <Group>

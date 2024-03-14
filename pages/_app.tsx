@@ -56,7 +56,7 @@ export default function App(props: AppProps) {
   return (
     <>
       <Head>
-        <title>devtalk ai</title>
+        <title>Devtalk AI</title>
         <link rel="shortcut icon" href="/favicon.svg" />
         <meta
           name="viewport"
@@ -74,6 +74,7 @@ export default function App(props: AppProps) {
             <MantineProvider
               withGlobalStyles
               withNormalizeCSS
+              withCSSVariables
               theme={{
                 colorScheme: colorScheme,
                 primaryShade: 7,

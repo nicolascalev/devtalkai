@@ -2,28 +2,25 @@ import {
   Box,
   Button,
   Group,
-  Modal,
   SegmentedControl,
   Select,
   SelectItem,
+  Stack,
   Text,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import React, { useEffect, useState } from "react";
-import { useStoreActions, useStoreState } from "../store";
+import { showNotification } from "@mantine/notifications";
+import { useEffect, useState } from "react";
+import api from "../hooks/api.client";
 import useOrganizationProjects from "../hooks/useOrganizationProjects";
+import { useStoreActions, useStoreState } from "../store";
 
 export type Preferences = {
   voice: string;
   mark: string;
   project?: { value: number; label: string };
 };
-interface AppPreferencesModalType {
-  onPreferencesChange: (preferences: Preferences) => void;
-}
 
-function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
-  const [opened, { open, close }] = useDisclosure(false);
+function AppPreferencesModal() {
   const user = useStoreState((state) => state.user);
   const storeVoice = useStoreState((state) => state.voice);
   const storeMark = useStoreState((state) => state.mark);
@@ -49,16 +46,6 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
   const [projectId, setProjectId] = useState<null | string>(
     storeProjectId || null
   );
-  // when load projects select the first one if there isnt one in store
-  useEffect(() => {
-    if (projects && projects[0]) {
-      if (storeProjectId) {
-        setProjectId(storeProjectId);
-      } else {
-        setProjectId(projects[0].id.toString());
-      }
-    }
-  }, [projects, storeProjectId]);
 
   // use organization roles for voice or add your own
   const organizationRoles = user?.organization?.roles as string[];
@@ -83,49 +70,54 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
   const [voice, setVoice] = useState<string>(currentRoles[0]);
   const [mark, setMark] = useState("Issue");
 
-  function getSelectedProject(projectIdParam: string | null) {
-    if (!projectIdParam) return undefined;
-    const selectedProject = projectItems.find(
-      (item) => item.value === projectIdParam
-    );
-    if (!selectedProject) return undefined;
-    return {
-      value: Number(selectedProject.value),
-      label: selectedProject.label as string,
-    };
-  }
-
-  // when preferences change, emit onPreferencesChange()
-  useEffect(() => {
-    const selectedProject = getSelectedProject(projectId);
-    onPreferencesChange({
-      voice,
-      mark,
-      project: selectedProject,
-    });
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [voice, mark, projectId]);
-
   // store preferences in store
   const storeSetVoice = useStoreActions((actions) => actions.setVoice);
   const storeSetMark = useStoreActions((actions) => actions.setMark);
   const storeSetProjectId = useStoreActions((actions) => actions.setProjectId);
-  useEffect(() => {
-    storeSetVoice(voice);
-    storeSetMark(mark);
-    storeSetProjectId(projectId || "");
-  }, [voice, mark, projectId, storeSetVoice, storeSetMark, storeSetProjectId]);
+  const storeSetHistory = useStoreActions((actions) => actions.setHistory);
 
-  // we dont set projectId from store here because there's another useEffect
-  // setting the project
+  const [loading, setLoading] = useState(false);
+  async function startNewChat() {
+    if (!projectId || !mark || !voice) {
+      showNotification({
+        title: "Select all required fields",
+        message: "Please select a project, voice and mark",
+        color: "red",
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      const project = await api
+        .get(`/project/${projectId}`)
+        .then((res) => res.data);
+      storeSetHistory([
+        {
+          role: "assistant",
+          content: `I am an AI assistant that explains technical topics to non-technical people. My tone for this project is set to ${voice}. I have to explain an item marked as ${mark}. The json object for the project is ${JSON.stringify(
+            project
+          )}. You can ask me anything like security considerations, UX, and more and I will explain it in the selected tone`,
+        },
+      ]);
+      storeSetVoice(voice);
+      storeSetMark(mark);
+      storeSetProjectId(projectId);
+    } catch (err) {
+      showNotification({
+        title: "Error, please try again later",
+        message: "There was an error starting the chat",
+        color: "red",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // when component is mounted set the preferences from the store
   useEffect(() => {
-    if (storeVoice) {
-      setVoice(storeVoice);
-    }
-    if (storeMark) {
-      setMark(storeMark);
-    }
+    setVoice(storeVoice);
+    setMark(storeMark || "Default");
+    setProjectId(storeProjectId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -141,45 +133,37 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
 
   return (
     <>
-      <Button onClick={() => open()} loading={projectsLoading}>
-        Preferences
-      </Button>
-      <Modal opened={opened} onClose={close} title="Output preferences">
+      <Stack>
+        <Text fw={500}>Start new chat</Text>
+        <Select
+          label="Project"
+          placeholder="Select a project"
+          data={projectItems}
+          value={projectId}
+          onChange={setProjectId}
+          searchable
+          clearable
+          maxDropdownHeight={200}
+          error={getProjectsError()}
+        />
+        <Select
+          value={voice}
+          onChange={(value: string) => setVoice(value)}
+          maxDropdownHeight={200}
+          label="Voice"
+          placeholder="Select voice"
+          data={roles}
+          searchable
+          creatable
+          getCreateLabel={(query) => `+ Add ${query}`}
+          onCreate={(query) => {
+            const item = { value: query, label: query };
+            setRoles((current) => [...current, item]);
+            return item;
+          }}
+        />
         <Box>
-          <Select
-            label="Project"
-            placeholder="Select a project"
-            data={projectItems}
-            value={projectId}
-            onChange={setProjectId}
-            searchable
-            clearable
-            maxDropdownHeight={200}
-            error={getProjectsError()}
-          />
-        </Box>
-        <Box mt="sm">
-          <Select
-            value={voice}
-            onChange={(value: string) => setVoice(value)}
-            maxDropdownHeight={200}
-            label="Voice"
-            placeholder="Select voice"
-            data={roles}
-            searchable
-            creatable
-            getCreateLabel={(query) => `+ Add ${query}`}
-            onCreate={(query) => {
-              const item = { value: query, label: query };
-              setRoles((current) => [...current, item]);
-              return item;
-            }}
-          />
-        </Box>
-        <Box mt="sm">
-          <Text size="sm" fw={500}>
-            Mark as
-          </Text>
+          <Text size="sm">Mark as</Text>
           <SegmentedControl
             fullWidth
             value={mark}
@@ -192,12 +176,16 @@ function AppPreferencesModal({ onPreferencesChange }: AppPreferencesModalType) {
             ]}
           />
         </Box>
-        <Group position="right" mt={100}>
-          <Button variant="default" onClick={() => close()}>
-            Back
+        <Group position="right">
+          <Button
+            variant="light"
+            onClick={() => startNewChat()}
+            loading={loading}
+          >
+            Start
           </Button>
         </Group>
-      </Modal>
+      </Stack>
     </>
   );
 }

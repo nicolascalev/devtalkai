@@ -34,9 +34,9 @@ export default function IndexPage() {
         <AppTitle order={1} my="xl">
           Outputs
         </AppTitle>
-        <Link href="/writing" passHref>
-          <Button>Create</Button>
-        </Link>
+        <Button component={Link} href="/chat">
+          Create
+        </Button>
       </Group>
       <Text size="lg" fw={500}>
         Recent content writing
@@ -53,7 +53,10 @@ export default function IndexPage() {
       >
         {outputsResponse?.result.map((output) => (
           <div key={output.id}>
-            <AppOutputCard output={output} onUpdate={() => outputsRevalidate()} />
+            <AppOutputCard
+              output={output}
+              onUpdate={() => outputsRevalidate()}
+            />
           </div>
         ))}
         {outputsResponse?.result.length === 0 && (

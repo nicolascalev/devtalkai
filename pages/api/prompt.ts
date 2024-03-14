@@ -9,7 +9,6 @@ import { AxiosError } from "axios";
 
 type PromptBody = {
   history: ChatCompletionRequestMessage[];
-  prompt: string;
   projectId: number;
   voice: string;
   mark: string;
@@ -37,7 +36,7 @@ export default withApiAuthRequired(async function promptHandler(
       // think about how to optimize this so we don't hve to populate org > admin > sub
       // because if we do that in every message it may take too long
       const project = await prisma.project.findUnique({
-        where: { id: body.projectId },
+        where: { id: Number(body.projectId) },
         include: {
           organization: {
             include: {
@@ -67,32 +66,19 @@ export default withApiAuthRequired(async function promptHandler(
           .send("The organization does not have an active subscription");
       }
 
-      const context = getPromptContext({ project, user });
-      const prompt = getPrompt({
-        prompt: body.prompt,
-        voice: body.voice,
-      });
-
       const result = await openai.createChatCompletion({
         model: "gpt-3.5-turbo",
-        messages: [
-          {
-            role: "user",
-            content: context,
-          },
-          ...body.history,
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
+        messages: body.history.map((item) => ({
+          role: item.role,
+          content: item.content,
+        })),
       });
 
       const output = await prisma.output.create({
         data: {
           user: { connect: { id: user.id } },
           project: { connect: { id: project!.id } },
-          body: result.data.choices[0].message!.content,
+          body: result.data.choices[0].message!.content as string,
           organization: { connect: { id: user.organizationId } },
           markedAs: body.mark,
           voice: body.voice,

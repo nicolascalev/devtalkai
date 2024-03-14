@@ -13,27 +13,25 @@ type AppProjectCardProps = Omit<CardProps, "children"> & {
 function AppProjectCard({ project, ...rest }: AppProjectCardProps) {
   const { hovered, ref } = useHover();
   return (
-    <Link href={"/project/" + project.id} passHref>
-      <Anchor underline={false}>
-        <Card
-          ref={ref}
-          withBorder
-          {...rest}
-          shadow={hovered ? "md" : "none"}
-          style={{ transition: "box-shadow 0.5s" }}
-        >
-          <Group noWrap align="center" position="apart" spacing="xs">
-            <div>
-              <Text fw={500}>{project.label}</Text>
-              <Text c="dimmed">{project.description}</Text>
-            </div>
-            <ThemeIcon color="gray" variant="subtle">
-              <IconChevronRight size={16} />
-            </ThemeIcon>
-          </Group>
-        </Card>
-      </Anchor>
-    </Link>
+    <Anchor underline={false} component={Link} href={"/project/" + project.id}>
+      <Card
+        ref={ref}
+        withBorder
+        {...rest}
+        shadow={hovered ? "md" : "none"}
+        style={{ transition: "box-shadow 0.5s" }}
+      >
+        <Group noWrap align="center" position="apart" spacing="xs">
+          <div>
+            <Text fw={500}>{project.label}</Text>
+            <Text c="dimmed">{project.description}</Text>
+          </div>
+          <ThemeIcon color="gray" variant="subtle">
+            <IconChevronRight size={16} />
+          </ThemeIcon>
+        </Group>
+      </Card>
+    </Anchor>
   );
 }
 

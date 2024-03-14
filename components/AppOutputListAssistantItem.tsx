@@ -43,7 +43,7 @@ function AppOutputListAssistantItem({ item }: { item: OutputListItemType }) {
         </Text>
         <Group mt="xs" position="right">
           <Group noWrap align="center" spacing="xs">
-            <CopyButton value={item.content}>
+            <CopyButton value={item.content as string}>
               {({ copied, copy }) => (
                 <ActionIcon variant="default" onClick={copy} title="Copy">
                   {copied ? <IconCheck size={16} /> : <IconCopy size={16} />}

@@ -56,11 +56,9 @@ function OrganizationPage() {
             organization
           </Text>
           <Group align="center" mt="sm" spacing="xs">
-            <Link href="/profile" passHref>
-              <Button variant="default" component="a">
-                Invites
-              </Button>
-            </Link>
+            <Button variant="default" component={Link} href="/profile">
+              Invites
+            </Button>
             <AppAddOrganizationModal />
           </Group>
         </Card>

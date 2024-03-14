@@ -1,20 +1,8 @@
-import { Navbar, ScrollArea, useMantineTheme } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
-import React, { useEffect, useState } from "react";
-// import { useStoreState } from "../store";
+import { Navbar, ScrollArea } from "@mantine/core";
 import { AppLinks } from "./AppLinks";
 import { AppUserButton } from "./AppUserButton";
 
 function AppNavbar(props: any) {
-  const theme = useMantineTheme();
-  const matchesLargeScreen = useMediaQuery(
-    `(min-width: ${theme.breakpoints.md}px)`
-  );
-
-  const [show, setShow] = useState(true);
-  useEffect(() => {
-    setShow(true);
-  }, []);
 
   return (
     <Navbar

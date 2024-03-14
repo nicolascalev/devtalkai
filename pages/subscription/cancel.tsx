@@ -17,11 +17,9 @@ function SubscriptionCancelPage() {
           Your account will be active until the last payment period
         </Text>
         <Group position="center" mt="xs">
-          <Link href="/subscription" passHref>
-            <Button variant="default" component="a">
-              See subscription
-            </Button>
-          </Link>
+          <Button variant="default" component={Link} href="/subscription">
+            See subscription
+          </Button>
         </Group>
       </Box>
     </Center>

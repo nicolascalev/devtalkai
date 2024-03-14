@@ -21,11 +21,9 @@ function AppError(props: AppErrorProps) {
           {props.message}
         </Text>
         <Group w="100%" mt="md" position="right">
-          <Link href={props.redirectUrl} passHref>
-            <Button component="a" variant="default">
-              {props.redirectButtonLabel}
-            </Button>
-          </Link>
+          <Button component={Link} href={props.redirectUrl} variant="default">
+            {props.redirectButtonLabel}
+          </Button>
         </Group>
       </Card>
     </Center>

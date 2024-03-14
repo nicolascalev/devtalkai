@@ -75,17 +75,16 @@ function ProjectPage(props: { projectId: number }) {
                 w={ltExtraSmall ? "100%" : undefined}
                 style={{ flexGrow: 1 }}
               >
-                <Link href={project.documentationLink} passHref>
-                  <Button
-                    component="a"
-                    target="_blank"
-                    variant="default"
-                    fullWidth={ltExtraSmall}
-                    rightIcon={<IconExternalLink size={16} />}
-                  >
-                    Project documentation
-                  </Button>
-                </Link>
+                <Button
+                  component={Link}
+                  href={project.documentationLink}
+                  target="_blank"
+                  variant="default"
+                  fullWidth={ltExtraSmall}
+                  rightIcon={<IconExternalLink size={16} />}
+                >
+                  Project documentation
+                </Button>
               </Group>
             )}
           </Group>

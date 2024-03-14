@@ -1,18 +1,14 @@
 import {
-  Group,
-  ThemeIcon,
+  Group, Text, ThemeIcon,
   UnstyledButton,
-  useMantineTheme,
-  Text,
+  useMantineTheme
 } from "@mantine/core";
 import {
   IconBookmark,
   IconBuilding,
   IconCodeCircle,
-  IconPennant,
-  IconReceipt,
-  IconSettings,
-  IconWriting,
+  IconMessage, IconReceipt,
+  IconSettings
 } from "@tabler/icons-react";
 import Link from "next/link";
 import { useStoreState } from "../../store";
@@ -31,9 +27,9 @@ export const loggedInLinks: MainLinkProps[] = [
     label: "Outputs",
   },
   {
-    url: "/writing",
-    icon: <IconWriting size={16} />,
-    label: "Writing",
+    url: "/chat",
+    icon: <IconMessage size={16} />,
+    label: "Chat",
   },
   {
     url: "/organization",
@@ -64,33 +60,32 @@ function MainLink({ icon, label, url, target }: MainLinkProps) {
   const theme = useMantineTheme();
   const isDark = theme.colorScheme == "dark";
   return (
-    <Link passHref href={url}>
-      <UnstyledButton
-        component="a"
-        target={target}
-        sx={(theme) => ({
-          display: "block",
-          width: "100%",
-          padding: theme.spacing.xs,
-          borderRadius: theme.radius.sm,
-          color: isDark ? theme.colors.dark[0] : theme.black,
+    <UnstyledButton
+      component={Link}
+      href={url}
+      target={target}
+      sx={(theme) => ({
+        display: "block",
+        width: "calc(100% - var(--mantine-spacing-xs))",
+        padding: "var(--mantine-spacing-xs)",
+        borderRadius: theme.radius.sm,
+        color: isDark ? theme.colors.dark[0] : theme.black,
 
-          "&:hover": {
-            backgroundColor: isDark
-              ? theme.colors.dark[6]
-              : theme.colors.gray[0],
-          },
-        })}
-      >
-        <Group>
-          <ThemeIcon color="gray" variant="light">
-            {icon}
-          </ThemeIcon>
+        "&:hover": {
+          backgroundColor: isDark ? theme.colors.dark[6] : theme.colors.gray[0],
+        },
+      })}
+    >
+      <Group>
+        <ThemeIcon color="gray" variant="light">
+          {icon}
+        </ThemeIcon>
 
-          <Text size="sm">{label}</Text>
-        </Group>
-      </UnstyledButton>
-    </Link>
+        <Text size="sm" lineClamp={1}>
+          {label}
+        </Text>
+      </Group>
+    </UnstyledButton>
   );
 }
 
