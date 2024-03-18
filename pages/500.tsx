@@ -7,7 +7,7 @@ function InternalServerError() {
       status={500}
       label="Internal error"
       message="There was an error processing your request, if the error persists please contact support"
-      redirectUrl="mailto:nicolascalevg@gmail.com?subject=[INTERNAL ERROR] There was an error in devtalk ai"
+      redirectUrl="mailto:nicolascalevg@gmail.com?subject=[INTERNAL ERROR] There was an error in Devtalk AI"
       redirectButtonLabel="Contact support"
     />
   );

@@ -17,11 +17,11 @@ function getMessage({ user, organization, baseUrl, to }: InviteEmailParams) {
 
   return `
 <!DOCTYPE html><html><body>
-<p>Join ${organization.name} on devtalk ai</p>
+<p>Join ${organization.name} on Devtalk AI</p>
 <p>Hello,
 
 ${user.fullName} (${user.email}) has invited you
-to join the organization ${organization.name} on devtalk ai.</p>
+to join the organization ${organization.name} on Devtalk AI.</p>
 
 <a href="${url}">Join the organization</a>
 
@@ -45,7 +45,7 @@ export default async function sendInviteEmail(params: InviteEmailParams) {
           email: "no-reply@devtalkai.com",
           name: "Devtalk ai Team",
         },
-        subject: `Join ${params.organization.name} on devtalk ai`,
+        subject: `Join ${params.organization.name} on Devtalk AI`,
         htmlContent: getMessage(params),
         messageVersions: [
           {

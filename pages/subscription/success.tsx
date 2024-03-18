@@ -14,7 +14,7 @@ function SubscriptionSuccessPage() {
           Thanks for subscribing
         </Text>
         <Text c="dimmed">
-          A payment from devtalk ai will show on your statement.
+          A payment from Devtalk AI will show on your statement.
         </Text>
         <Group position="center" mt="xs">
           <Button variant="default" component={Link} href="/subscription">

@@ -1,29 +1,27 @@
 import {
-  Group,
-  Modal,
-  Image,
-  Text,
-  useMantineTheme,
-  Loader,
   Alert,
+  Avatar,
   Button,
   Center,
+  Group,
+  Loader,
+  Modal,
+  Text,
 } from "@mantine/core";
-import React, { ReactElement, useEffect, useState } from "react";
-import { useStoreActions } from "../../store";
-import { useProfile } from "../../hooks/useProfile";
+import Link from "next/link";
 import { useRouter } from "next/router";
+import { ReactElement, useEffect, useState } from "react";
+import { useProfile } from "../../hooks/useProfile";
+import { useStoreActions } from "../../store";
 
 const PUBLIC_PAGES = [
   "/subscription/success",
   "/subscription/cancel",
   "/404",
   "/403",
-]
+];
 
 function AppUserLoading({ children }: { children: ReactElement<any, any> }) {
-  const theme = useMantineTheme();
-  const isDark = theme.colorScheme === "dark";
   const router = useRouter();
 
   const setUser = useStoreActions((actions) => actions.setUser);
@@ -48,8 +46,8 @@ function AppUserLoading({ children }: { children: ReactElement<any, any> }) {
     if (PUBLIC_PAGES.includes(router.pathname)) {
       setIsPublicPage(true);
     }
-    console.log(router.pathname)
-  }, [router.pathname])
+    console.log(router.pathname);
+  }, [router.pathname]);
 
   if (!isPublicPage && (userLoading || userLoadingError || !user)) {
     return (
@@ -58,34 +56,18 @@ function AppUserLoading({ children }: { children: ReactElement<any, any> }) {
         onClose={() => {}}
         withCloseButton={false}
         title={
-          <Group align="center" spacing="xs">
-            <Image
-              radius={0}
-              src="/favicon.svg"
-              height="25px"
-              width="25px"
-              alt="devtalk ai logo"
-            />
-            <Text fw={600} size="lg" c={isDark ? "white" : "dark"}>
-              devtalk ai
-            </Text>
-          </Group>
+          <Avatar color="lime" component={Link} href="/" radius="xl">
+            DT
+          </Avatar>
         }
         fullScreen
       >
-        <Center h="calc(100vh - 60px)">
+        <Center h="calc(100dvh - 60px)">
           {userLoading && !userLoadingError ? (
-            <Alert
-              variant="outline"
-              title="We are happy you are back"
-              maw="700px"
-              w="100%"
-            >
-              <Group noWrap align="center">
-                <Loader size="sm" />
-                Loading profile...
-              </Group>
-            </Alert>
+            <Group noWrap align="center">
+              <Loader size="sm" color="gray" />
+              Loading profile...
+            </Group>
           ) : (
             <Alert
               variant="outline"
